@@ -1,6 +1,6 @@
 # Comparativa con metodologías clásicas
 
-## 2.1 Introducción
+## Introducción
 
 El marco **HILL-SE (Human-In-the-Loop Large-Language-Model Software Engineering)** no sustituye a las metodologías tradicionales de desarrollo de software, sino que **las complementa**.  
 Su objetivo es incorporar la colaboración entre humanos y modelos de lenguaje dentro de un entorno de ingeniería disciplinado, asegurando que las prácticas modernas (Agile, DevOps, MLOps) puedan **convivir con la generación automática de código y documentación** sin pérdida de control ni trazabilidad.
@@ -9,7 +9,7 @@ Este capítulo compara HILL-SE con los enfoques clásicos más influyentes: **Wa
 
 ---
 
-## 2.2 HILL-SE frente a Waterfall
+## HILL-SE frente a Waterfall
 
 El modelo **Waterfall** o “cascada” define un flujo lineal y secuencial: requisitos → diseño → implementación → verificación → mantenimiento.  
 Cada fase depende de la finalización completa de la anterior y la documentación formal desempeña un papel central.
@@ -36,7 +36,7 @@ El LLM permite crear prototipos, refinar requisitos y actualizar documentación 
 
 ---
 
-## 2.3 HILL-SE frente a Agile / SCRUM
+## HILL-SE frente a Agile / SCRUM
 
 Las metodologías **Agile** —y en particular **SCRUM**— priorizan la colaboración, la entrega continua de valor y la adaptabilidad frente al cambio.  
 HILL-SE se alinea con estos principios, pero introduce un elemento nuevo: **la asistencia de modelos de lenguaje** dentro de los sprints.
@@ -78,7 +78,7 @@ La diferencia es que las herramientas generativas se integran formalmente en el 
 
 ---
 
-## 2.4 Integración con DevOps y MLOps
+## Integración con DevOps y MLOps
 
 El enfoque **DevOps** une desarrollo y operaciones mediante automatización, despliegue continuo y feedback rápido.  
 **MLOps** extiende estos principios a los sistemas de aprendizaje automático, añadiendo control de datos, modelos y experimentos.
@@ -104,7 +104,7 @@ En entornos MLOps, el paradigma se extiende a la documentación y validación de
 
 ---
 
-## 2.5 Cuándo aplicar HILL-SE y cuándo no
+## Cuándo aplicar HILL-SE y cuándo no
 
 **Aplicar HILL-SE cuando:**
 

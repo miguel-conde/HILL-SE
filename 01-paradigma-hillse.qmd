@@ -1,6 +1,6 @@
 # El paradigma HILL-SE
 
-## 1.1 Origen y propósito
+## Origen y propósito
 
 La aparición de los **Modelos de Lenguaje de Gran Escala (LLMs)** ha introducido una nueva fase en la historia de la ingeniería de software.  
 Por primera vez, los desarrolladores cuentan con herramientas capaces de **entender lenguaje natural y código**, proponer soluciones de programación completas y generar documentación técnica.  
@@ -19,7 +19,7 @@ En síntesis, HILL-SE no pretende sustituir al ingeniero, sino **amplificar su c
 
 ---
 
-## 1.2 Definición formal del acrónimo
+## Definición formal del acrónimo
 
 El acrónimo **HILL-SE** resume los elementos esenciales del paradigma:
 
@@ -35,20 +35,20 @@ Esta combinación sintetiza la esencia del paradigma:
 
 ---
 
-## 1.3 Principios rectores de HILL-SE
+## Principios rectores de HILL-SE
 
 Los siguientes principios definen el modo de trabajo y la cultura técnica que sustenta la metodología.
 
-### 1.3.1 Human First
+### Human First
 Todas las decisiones de diseño, seguridad y calidad deben ser tomadas o validadas por un humano.  
 El LLM puede generar alternativas, pero **nunca debe asumir decisiones críticas** sin revisión humana.  
 Este principio se traduce en prácticas como la *revisión manual obligatoria de PRs*, la documentación de decisiones arquitectónicas (ADRs) y la firma humana de las entregas.
 
-### 1.3.2 Spec → Tests → Code
+### Spec → Tests → Code
 El flujo de desarrollo comienza con una **especificación verificable**, continúa con la definición de **tests que operacionalizan esa especificación**, y finaliza con la generación de **código que satisface dichos tests**.  
 Los LLMs pueden asistir en la traducción de requisitos a pruebas o en la creación de código de soporte, pero la dirección del proceso sigue siendo **top-down**, impulsada por el ingeniero.
 
-### 1.3.3 Trazabilidad y transparencia
+### Trazabilidad y transparencia
 Cada elemento del sistema debe poder rastrearse hasta su origen:  
 - Los requisitos se vinculan con criterios de aceptación (AC).  
 - Los AC se implementan en tests.  
@@ -57,7 +57,7 @@ Cada elemento del sistema debe poder rastrearse hasta su origen:
 
 Esta trazabilidad garantiza responsabilidad técnica y permite auditar cómo las decisiones del LLM influyen en el producto final.
 
-### 1.3.4 Calidad continua
+### Calidad continua
 La calidad no se verifica al final, sino que se mantiene durante todo el ciclo de vida mediante:  
 - **Quality Gates automáticos** (linting, tipado, cobertura, seguridad).  
 - **Integración continua (CI/CD)** con revisión humana.  
@@ -68,12 +68,12 @@ El objetivo es mantener un equilibrio constante entre **productividad asistida p
 
 ---
 
-## 1.4 Roles humanos y roles de los LLMs
+## Roles humanos y roles de los LLMs
 
 En el paradigma HILL-SE se distinguen claramente los **roles del ingeniero humano** y los **roles del modelo de lenguaje**.  
 Ambos colaboran, pero bajo una jerarquía clara: el humano lidera; el modelo asiste.
 
-### 1.4.1 Roles humanos
+### Roles humanos
 
 | Rol | Responsabilidad principal |
 |:----|:---------------------------|
@@ -84,7 +84,7 @@ Ambos colaboran, pero bajo una jerarquía clara: el humano lidera; el modelo asi
 
 Los humanos son responsables de **planificación, diseño, validación y gobernanza**.
 
-### 1.4.2 Roles de los LLMs
+### Roles de los LLMs
 
 | Rol | Función dentro del proceso |
 |:----|:----------------------------|

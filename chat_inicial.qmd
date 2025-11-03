@@ -504,7 +504,7 @@ Excelente pregunta — y muy buena ocasión para formalizarlo.
 ### 🔹 Desglose del acrónimo
 
 | Letra  | Significado              | Rol dentro del método                                                                                             |
-|------------|------------|------------------------------------------------|
+|---------------|---------------|-------------------------------------------|
 | **H**  | **Human**                | El ingeniero humano define requisitos, arquitectura, verifica resultados y aprueba decisiones.                    |
 | **I**  | **In-the-Loop**          | El humano supervisa y cierra el ciclo en cada interacción con el LLM. No hay pasos autónomos.                     |
 | **LL** | **Large Language Model** | El modelo asiste en tareas cognitivas: análisis de requisitos, generación de código, documentación, pruebas, etc. |
@@ -563,7 +563,7 @@ Combina los principios de la ingeniería de software clásica con las nuevas cap
 ### Acrónimo
 
 | Sigla  | Significado              | Rol dentro del método                                                                                                |
-|------------|------------|------------------------------------------------|
+|---------------|---------------|-------------------------------------------|
 | **H**  | **Human**                | El ingeniero humano define requisitos, diseña la arquitectura, valida resultados y asume la responsabilidad técnica. |
 | **I**  | **In-the-Loop**          | Cada fase incluye verificación humana; el LLM nunca ejecuta tareas críticas sin supervisión.                         |
 | **LL** | **Large Language Model** | El modelo asiste en análisis, diseño, generación de código, documentación, testing y refactorización.                |
@@ -804,7 +804,7 @@ src/ └── cli_tool/     ├── __init__.py     ├── cli.py         
 ## 🧠 En resumen
 
 | Nivel                      | Fijo por HILL-SE                                               | Variable por tipo de proyecto              |
-|-----------------|--------------------------------|----------------------|
+|------------------|--------------------------------|----------------------|
 | **Metodología**            | Human-in-the-loop, calidad, CI/CD, documentación, trazabilidad | —                                          |
 | **Artefactos**             | UML, ADRs, Gherkin, docstrings, prompts                        | —                                          |
 | **Estructura base**        | src/, tests/, docs/, adr/, uml/, prompts/                      | —                                          |
@@ -1493,49 +1493,27 @@ Tomo nota de tus dos recordatorios:
 
 3.  **Arquitectura del sistema de trabajo**
 
-    -   
-
     -   Capas del ciclo de vida (Definición, Diseño, Implementación, Verificación, Release)
-
-    -   
 
     -   Artefactos principales: requisitos ejecutables, UML, ADRs, docstrings, prompts
 
-    -   
-
     -   Flujo general de un proyecto HILL-SE (mermaid diagram)
-
-    -   
-
-4.  
 
 ### **Parte II — Aplicación práctica paso a paso**
 
-4.  
-
-5.  **Definición y análisis de requisitos**
-
-    -   
+4.  **Definición y análisis de requisitos**
 
     -   Historias de usuario y criterios de aceptación (Gherkin)
 
-    -   
-
     -   Uso del LLM como asistente de refinamiento
-
-    -   
 
     -   Definición de requisitos no funcionales
 
-    -   
-
     -   Ejercicio guiado
 
-    -   
+5.  
 
-6.  
-
-7.  **Diseño y arquitectura**
+6.  **Diseño y arquitectura**
 
     -   
 
@@ -1555,9 +1533,9 @@ Tomo nota de tus dos recordatorios:
 
     -   
 
-8.  
+7.  
 
-9.  **Implementación asistida por LLM**
+8.  **Implementación asistida por LLM**
 
     -   
 
@@ -1577,9 +1555,9 @@ Tomo nota de tus dos recordatorios:
 
     -   
 
-10. 
+9.  
 
-11. **Validación y verificación**
+10. **Validación y verificación**
 
     -   
 
@@ -1599,9 +1577,9 @@ Tomo nota de tus dos recordatorios:
 
     -   
 
-12. 
+11. 
 
-13. **Documentación y trazabilidad**
+12. **Documentación y trazabilidad**
 
     -   
 
@@ -1621,9 +1599,9 @@ Tomo nota de tus dos recordatorios:
 
     -   
 
-14. 
+13. 
 
-15. **Ciclo de vida y CI/CD**
+14. **Ciclo de vida y CI/CD**
 
     -   
 
@@ -1643,9 +1621,9 @@ Tomo nota de tus dos recordatorios:
 
     -   
 
-16. 
+15. 
 
-17. **Gestión de proyecto y roles**
+16. **Gestión de proyecto y roles**
 
     -   
 
@@ -1665,7 +1643,7 @@ Tomo nota de tus dos recordatorios:
 
     -   
 
-18. 
+17. 
 
 ### **Parte III — Ecosistema y herramientas**
 

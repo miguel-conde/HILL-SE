@@ -1,0 +1,110 @@
+# Arquitectura del sistema de trabajo
+
+El marco **HILL-SE** organiza el proceso de desarrollo en un conjunto de **capas interdependientes**, cada una asociada a un conjunto de **artefactos verificables** y a un ciclo de retroalimentación continuo entre el ingeniero humano, el asistente LLM y el pipeline de validación.
+
+La arquitectura no se define como un diagrama técnico cerrado, sino como un **sistema operativo para la ingeniería de software** donde el flujo de trabajo es iterativo, auditable y humanamente controlado.
+
+---
+
+## Capas del ciclo de vida
+
+La metodología HILL-SE estructura el ciclo de vida del software en cinco capas o fases lógicas. Estas capas no son secuenciales, sino que forman un bucle iterativo de mejora continua.
+
+### Definición
+
+En esta fase el **ingeniero humano** establece los objetivos del sistema, los requisitos funcionales y no funcionales, y el contexto del dominio.  
+El **LLM** puede asistir en la redacción de historias de usuario, criterios de aceptación y escenarios de prueba expresados en lenguaje estructurado (por ejemplo, Gherkin).
+
+**Resultados de esta capa:**
+- Historias de usuario con criterios de aceptación verificables.  
+- Especificaciones iniciales del sistema y supuestos de contexto.  
+- Riesgos y restricciones documentados.
+
+### Diseño
+
+El diseño traduce los requisitos en **estructuras técnicas y lógicas**.  
+Aquí se elaboran diagramas UML, se documentan las decisiones arquitectónicas (ADRs) y se definen los contratos de interfaces y dependencias.
+
+El LLM puede colaborar generando diagramas preliminares o proponiendo alternativas de patrón (por ejemplo, Ports & Adapters, Strategy o Observer), pero la validación conceptual corresponde siempre al ingeniero humano.
+
+**Resultados de esta capa:**
+- Diagramas UML (casos de uso, clases, secuencias, componentes).  
+- ADRs con contexto, decisión y consecuencias.  
+- Definición de interfaces, modelos de datos y dependencias externas.
+
+### Implementación
+
+Durante la implementación se materializan los diseños en código fuente conforme a las normas de calidad establecidas (PEP 8, tipado estricto, documentación, pruebas).
+
+El LLM actúa como **asistente generativo**, produciendo código, docstrings y tests que después son revisados y validados por humanos.  
+Cada módulo debe contar con sus propias pruebas y documentación ejecutable.
+
+**Resultados de esta capa:**
+- Código fuente estructurado y documentado.  
+- Docstrings con ejemplos ejecutables y tipado estático.  
+- Pruebas unitarias, de integración y de regresión.
+
+### Verificación
+
+La verificación asegura que el software cumple los criterios de aceptación y los estándares de calidad.  
+Incluye pruebas automatizadas, análisis estático, revisión de seguridad y validación humana.
+
+El pipeline CI/CD constituye el **mecanismo formal de validación**, mientras que el ingeniero humano revisa los resultados, interpreta los informes y aprueba las entregas.
+
+**Resultados de esta capa:**
+- Ejecución de tests y cobertura documentada.  
+- Validación de seguridad, tipado y estilo.  
+- Revisión humana y aprobación de PR.
+
+### Release
+
+La capa final abarca la **entrega, publicación y mantenimiento** del software.  
+HILL-SE mantiene los mismos principios de trazabilidad y control en esta etapa: las versiones, los cambios y los artefactos generados deben poder auditarse.
+
+**Resultados de esta capa:**
+- Versiones etiquetadas (semver) y changelogs automáticos.  
+- Paquetes o despliegues reproducibles.  
+- Documentación y artefactos de validación archivados.
+
+---
+
+## Artefactos principales
+
+En HILL-SE cada fase del ciclo produce uno o varios **artefactos formales**. Todos ellos son versionados, verificables y trazables entre sí.
+
+| Artefacto | Descripción | Propósito |
+|:-----------|:-------------|:-----------|
+| **Requisitos ejecutables** | Historias de usuario con criterios de aceptación en formato Gherkin. | Conectar las necesidades del negocio con pruebas automáticas. |
+| **Diagramas UML** | Diagramas de casos de uso, clases, secuencia y componentes. | Representar visualmente la estructura y comportamiento del sistema. |
+| **ADRs (Architecture Decision Records)** | Documentos breves que registran decisiones arquitectónicas clave. | Mantener la memoria técnica del proyecto y su evolución. |
+| **Docstrings** | Descripciones integradas en el código con formato Google o NumPy. | Garantizar la comprensión y generar documentación automática. |
+| **Prompts** | Instrucciones y contextos utilizados para las interacciones con el LLM. | Documentar el conocimiento compartido entre humano y modelo. |
+
+Todos estos artefactos se encuentran **interrelacionados**.  
+Un cambio en los requisitos afecta a los diagramas, los tests y el código; una decisión arquitectónica documentada en un ADR puede requerir la actualización de un prompt o de una prueba automatizada.  
+HILL-SE define mecanismos explícitos para mantener esa coherencia a lo largo del ciclo de vida.
+
+---
+
+## Flujo general de un proyecto HILL-SE
+
+El siguiente diagrama resume el flujo conceptual que une las capas anteriores.  
+El proceso no es lineal, sino circular: cada entrega produce retroalimentación que refina los requisitos y ajusta la siguiente iteración.
+
+```{mermaid}
+flowchart TD
+
+A["Definición de requisitos y contexto del sistema"]
+B["Diseño arquitectónico y modelado UML"]
+C["Implementación (código, docstrings, pruebas)"]
+D["Verificación (quality gates automáticos y revisión humana)"]
+E["Release y documentación final"]
+
+A -->|"Historias de usuario + Criterios de aceptación"| B
+B -->|"ADRs + Interfaces + Diagramas UML"| C
+C -->|"Código + Tests + Prompts registrados"| D
+D -->|"Validación técnica + Retroalimentación"| A
+D -->|"Versión etiquetada + Artefactos publicados"| E
+
+classDef phase fill:#f9f9f9,stroke:#666,stroke-width:1px
+class A,B,C,D,E phase
