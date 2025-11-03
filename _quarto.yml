@@ -1,0 +1,61 @@
+project:
+  type: book
+
+book:
+  title: "Manual HILL-SE — Human-In-the-Loop LLM Software Engineering"
+  author: "Equipo HILL-SE"
+  date: "2025"
+  chapters:
+    - index.qmd
+
+    - part: "Parte I — Fundamentos conceptuales"
+      chapters:
+        - 01-paradigma-hillse.qmd
+        - 02-comparativa-metodologias.qmd
+        - 03-arquitectura-sistema.qmd
+
+    - part: "Parte II — Aplicación práctica paso a paso"
+      chapters:
+        - 04-definicion-requisitos.qmd
+        - 05-diseno-arquitectura.qmd
+        - 06-implementacion-llm.qmd
+        - 07-validacion-verificacion.qmd
+        - 08-documentacion-trazabilidad.qmd
+        - 09-ciclo-vida-cicd.qmd
+        - 10-gestion-proyecto-roles.qmd
+
+    - part: "Parte III — Ecosistema y herramientas"
+      chapters:
+        - 11-entorno-desarrollo.qmd
+        - 12-tres-capas-apoyo-llm.qmd
+        - 13-configuracion-practicas-seguras.qmd
+
+    - part: "Parte IV — Casos de uso y ejemplos"
+      chapters:
+        - 14-caso-libreria-optimizacion.qmd
+        - 15-caso-api-rest.qmd
+        - 16-caso-frontend.qmd
+
+    - part: "Apéndices"
+      chapters:
+        - A-plantillas-checklists.qmd
+        - B-glosario-hillse.qmd
+        - C-bibliografia.qmd
+      appendix: true
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    number-sections: true
+    code-fold: true
+    code-tools: true
+    fig-cap-location: bottom
+    mermaid:
+      theme: default
+  pdf:
+    documentclass: scrreprt
+    toc-depth: 2
+
+
+

@@ -1,0 +1,133 @@
+# Comparativa con metodologías clásicas
+
+## 2.1 Introducción
+
+El marco **HILL-SE (Human-In-the-Loop Large-Language-Model Software Engineering)** no sustituye a las metodologías tradicionales de desarrollo de software, sino que **las complementa**.  
+Su objetivo es incorporar la colaboración entre humanos y modelos de lenguaje dentro de un entorno de ingeniería disciplinado, asegurando que las prácticas modernas (Agile, DevOps, MLOps) puedan **convivir con la generación automática de código y documentación** sin pérdida de control ni trazabilidad.
+
+Este capítulo compara HILL-SE con los enfoques clásicos más influyentes: **Waterfall**, **Agile/SCRUM** y **DevOps/MLOps**, y propone criterios prácticos para decidir **cuándo aplicar HILL-SE y cuándo optar por otros modelos**.
+
+---
+
+## 2.2 HILL-SE frente a Waterfall
+
+El modelo **Waterfall** o “cascada” define un flujo lineal y secuencial: requisitos → diseño → implementación → verificación → mantenimiento.  
+Cada fase depende de la finalización completa de la anterior y la documentación formal desempeña un papel central.
+
+**Similitudes con HILL-SE:**
+
+- Ambos valorizan la **documentación estructurada** y la **trazabilidad completa**.  
+- Comparten la importancia de los **artefactos de diseño** (UML, especificaciones, contratos).  
+- En ambos, la **verificación** es un proceso formal y auditable.
+
+**Diferencias clave:**
+
+| Aspecto | Waterfall | HILL-SE |
+|:---------|:-----------|:----------|
+| **Flujo de trabajo** | Lineal y rígido | Iterativo y con ciclos Human-in-the-Loop |
+| **Generación de artefactos** | Manual, humana | Asistida por LLM, con supervisión humana |
+| **Gestión del cambio** | Costosa, reabrir fases | Natural, basada en retroalimentación continua |
+| **Prototipado** | Limitado o tardío | Temprano y rápido gracias a generación automática |
+| **Revisión y validación** | Al final de cada fase | En cada iteración y tras cada generación LLM |
+
+**Conclusión:**  
+HILL-SE mantiene la disciplina documental del Waterfall, pero evita su rigidez.  
+El LLM permite crear prototipos, refinar requisitos y actualizar documentación en ciclos cortos, mientras el humano mantiene la verificación formal y el control de calidad.
+
+---
+
+## 2.3 HILL-SE frente a Agile / SCRUM
+
+Las metodologías **Agile** —y en particular **SCRUM**— priorizan la colaboración, la entrega continua de valor y la adaptabilidad frente al cambio.  
+HILL-SE se alinea con estos principios, pero introduce un elemento nuevo: **la asistencia de modelos de lenguaje** dentro de los sprints.
+
+**Similitudes con Agile/SCRUM:**
+
+- Desarrollo iterativo e incremental.  
+- Énfasis en la colaboración entre equipos y en la retroalimentación constante.  
+- Prioridad al software funcional sobre la documentación excesiva.  
+- Integración continua (CI) y automatización de pruebas.
+
+**Aportes diferenciales de HILL-SE:**
+
+1. **Especificación ejecutable:**  
+   Las historias de usuario se complementan con criterios de aceptación en formato **Gherkin**, lo que facilita la automatización de la validación y la generación de tests por parte del LLM.
+
+2. **Documentación asistida pero obligatoria:**  
+   En lugar de minimizar la documentación, HILL-SE la **automatiza y sincroniza** con el código (docstrings, UML, ADRs), eliminando el coste de mantenimiento manual.
+
+3. **Roles explícitos Human–LLM:**  
+   En Agile el foco está en el equipo humano; HILL-SE amplía este concepto para incluir al LLM como **miembro asistente** bajo control del equipo.
+
+4. **Definition of Ready (DoR) y Definition of Done (DoD) extendidos:**  
+   Cada historia o tarea debe incluir **AC verificables**, **pruebas ejecutables** y **documentación generada y validada** antes de considerarse completada.
+
+**Ejemplo de integración con SCRUM:**
+
+| Fase SCRUM | Adaptación HILL-SE |
+|:------------|:------------------|
+| Refinement | El LLM asiste en redactar historias de usuario y criterios Gherkin. |
+| Sprint Planning | El LLM ayuda a desglosar tareas pequeñas y testables. |
+| Development | El LLM genera código, docstrings y tests; el humano revisa y valida. |
+| Review | Se verifica el cumplimiento de AC mediante tests y coverage. |
+| Retrospective | Se ajustan prompts, guardrails y métricas de calidad. |
+
+**Conclusión:**  
+HILL-SE puede coexistir con Agile.  
+La diferencia es que las herramientas generativas se integran formalmente en el flujo de trabajo, no como ayudas informales, sino como **parte controlada del proceso de desarrollo**.
+
+---
+
+## 2.4 Integración con DevOps y MLOps
+
+El enfoque **DevOps** une desarrollo y operaciones mediante automatización, despliegue continuo y feedback rápido.  
+**MLOps** extiende estos principios a los sistemas de aprendizaje automático, añadiendo control de datos, modelos y experimentos.
+
+**Puntos de convergencia:**
+
+- HILL-SE comparte con DevOps la **automatización de pipelines** y el principio de **“calidad integrada”**.  
+- Los artefactos de HILL-SE (código, tests, UML, ADRs, prompts) pueden versionarse, desplegarse y validarse dentro del mismo flujo CI/CD.  
+- En contextos MLOps, el LLM puede participar en tareas específicas: generación de documentación de modelos, scripts de evaluación o notebooks reproducibles.
+
+**Ajustes necesarios para la integración:**
+
+| Elemento | DevOps/MLOps clásico | HILL-SE integrado |
+|:----------|:----------------------|:-----------------|
+| **Pipeline CI/CD** | Ejecuta pruebas y despliegues | Añade validaciones automáticas de prompts, docstrings y UML |
+| **Repositorios** | Código + infraestructura | Código + conocimiento (prompts, ADRs, UML, datasets sintéticos) |
+| **Control de versiones** | Git / DVC | Git + versionado de contexto LLM y orígenes de conocimiento |
+| **Feedback loop** | Logs, métricas, alertas | Incluye evaluación de outputs generados por LLMs |
+
+**Resultado:**  
+La integración HILL-SE + DevOps permite un ecosistema donde **la generación automática, la validación técnica y la operación continua coexisten** dentro de un marco trazable.  
+En entornos MLOps, el paradigma se extiende a la documentación y validación de experimentos, garantizando que los resultados de los modelos generativos sean auditables.
+
+---
+
+## 2.5 Cuándo aplicar HILL-SE y cuándo no
+
+**Aplicar HILL-SE cuando:**
+
+- El proyecto requiere **trazabilidad y auditabilidad completas** (consultoría, banca, energía, sector público).  
+- Se trabaja en **entornos regulados o críticos** donde el control humano es obligatorio.  
+- Se necesita **documentación y calidad técnica elevadas** con equipos híbridos (humanos + LLMs).  
+- Se desarrollan **librerías, frameworks, microservicios o APIs** que deben ser mantenibles y verificables.  
+- Se busca **acelerar la productividad sin comprometer la gobernanza técnica**.
+
+**Evitar o limitar HILL-SE cuando:**
+
+- Se trata de **prototipos exploratorios** o pruebas de concepto efímeras.  
+- La generación automática no aporta valor (p. ej., sistemas muy pequeños o sin lógica compleja).  
+- El equipo carece de madurez en CI/CD o no dispone de infraestructura para validación automatizada.  
+- El riesgo de exposición de datos o código sensible al LLM es inaceptable.
+
+**En resumen:**
+
+HILL-SE es más eficaz en proyectos que requieren un equilibrio entre:
+- **Velocidad generativa (IA)**  
+- **Rigor de ingeniería (humano)**  
+- **Seguridad y trazabilidad (pipeline)**  
+
+Cuando la experimentación pesa más que la calidad o la trazabilidad, otros enfoques más ligeros pueden ser preferibles.  
+Pero cuando el resultado debe **permanecer, integrarse o auditarse**, HILL-SE ofrece una estructura sólida para combinar inteligencia artificial y disciplina de ingeniería.
+

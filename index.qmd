@@ -1,0 +1,164 @@
+---
+title: "Manual HILL-SE — Human-In-the-Loop Large-Language-Model Software Engineering"
+subtitle: "Guía metodológica para el desarrollo de software asistido por modelos de lenguaje"
+author: "Miguel Conde"
+date: "2025"
+format:
+  html:
+    toc: true
+    number-sections: true
+    code-fold: true
+    code-tools: true
+  pdf:
+    documentclass: scrreprt
+    toc-depth: 2
+---
+
+# Prólogo {.unnumbered}
+
+El auge de los **Modelos de Lenguaje de Gran Escala (LLMs)** ha transformado radicalmente la práctica de la ingeniería de software.\
+Por primera vez, los programadores pueden **delegar tareas cognitivas** —análisis, diseño, documentación, codificación o pruebas— a sistemas capaces de comprender lenguaje natural y código con una sorprendente competencia.
+
+Sin embargo, esta revolución tecnológica plantea nuevos retos:\
+¿Cómo asegurar la **calidad, trazabilidad y responsabilidad técnica** en un entorno donde parte del trabajo es producido por un modelo estadístico?\
+¿Cómo evitar que la automatización erosione el rigor propio de la ingeniería de software?
+
+El marco **HILL-SE** responde a esa pregunta.
+
+------------------------------------------------------------------------
+
+# Introducción
+
+**HILL-SE** significa **Human-In-the-Loop Large-Language-Model Software Engineering**.\
+Es una metodología que integra los modelos de lenguaje en el flujo de desarrollo **sin desplazar al ingeniero humano**, sino **amplificando su capacidad** dentro de un marco disciplinado, auditable y reproducible.
+
+Su propósito es doble:
+
+1.  **Aumentar la productividad y la calidad**, aprovechando la capacidad de los LLMs para generar código, documentación y pruebas.\
+2.  **Preservar el control humano**, manteniendo la responsabilidad sobre las decisiones de diseño, arquitectura y verificación.
+
+------------------------------------------------------------------------
+
+## Filosofía central
+
+El principio rector de HILL-SE puede resumirse así:
+
+> **“Los LLMs pueden generar, pero sólo los humanos pueden garantizar.”**
+
+Por tanto, el humano no se limita a revisar código generado, sino que **lidera las fases de definición, diseño y validación**, mientras que el LLM actúa como **asistente experto** dentro de límites bien definidos.
+
+------------------------------------------------------------------------
+
+## Objetivos del manual
+
+Este manual ofrece a los profesionales del desarrollo de software una **guía metodológica completa** para aplicar HILL-SE en proyectos reales, combinando: - Buenas prácticas de ingeniería (OOP, documentación, testing, CI/CD); - Aprovechamiento responsable de los LLMs (ChatGPT, Copilot, agentes especializados); - Integración fluida con herramientas modernas (GitHub, VSCode, DevContainers, SonarQube, Quarto).
+
+El documento está estructurado en cuatro partes: 1. **Fundamentos conceptuales**: definición del marco y sus principios.\
+2. **Aplicación práctica paso a paso**: desde requisitos hasta validación.\
+3. **Ecosistema y herramientas**: configuración y automatización del entorno.\
+4. **Casos de uso**: ejemplos completos aplicando la metodología.
+
+------------------------------------------------------------------------
+
+# Diagrama conceptual de HILL-SE
+
+El marco HILL-SE se fundamenta en la colaboración estructurada entre tres elementos:
+
+1. **El ingeniero humano**, que conserva el control y la responsabilidad técnica;
+2. **El modelo de lenguaje (LLM)**, que actúa como asistente cognitivo; y
+3. **El entorno de integración continua (CI/CD)**, que garantiza la calidad objetiva y la trazabilidad del software.
+
+El siguiente diagrama representa este ciclo de interacción y supervisión continua. Cada elemento participa en una fase específica del proceso, pero el flujo es siempre cerrado: el humano define y valida, el LLM asiste en la generación y documentación, y el pipeline automatizado asegura la verificación técnica y la calidad del resultado.
+
+```{mermaid}
+flowchart TD
+
+subgraph H["Ingeniero Humano"]
+    A1["Definición de requisitos y contexto del sistema"]
+    A2["Diseño arquitectónico y diagramas UML"]
+    A3["Validación, revisión y aceptación"]
+    A4["Comunicación con stakeholders"]
+end
+
+subgraph L["Asistente LLM"]
+    B1["Refinar requisitos y criterios de aceptación (Gherkin)"]
+    B2["Generar código OOP conforme a PEP 8"]
+    B3["Sugerir tests unitarios y property-based"]
+    B4["Crear docstrings, ADRs, UML y documentación"]
+end
+
+subgraph P["Pipeline CI/CD + Quality Gates"]
+    C1["Linters (flake8, black, isort)"]
+    C2["Tipado y seguridad (mypy, bandit, pip-audit)"]
+    C3["Tests y cobertura (pytest, coverage)"]
+    C4["Análisis de calidad (SonarQube / SonarCloud)"]
+    C5["Revisión manual de PR y aprobación"]
+end
+
+%% Flujo principal
+A1 -->|"Prompts contextuales"| B1
+B1 -->|"User Stories + AC"| A2
+A2 -->|"Prompt técnico"| B2
+B2 -->|"Código y docstrings"| C1
+B3 -->|"Tests generados"| C3
+B4 -->|"Docs y UML actualizados"| A3
+
+%% Flujo pipeline
+C1 --> C2 --> C3 --> C4 --> C5
+C5 -->|"Feedback de validación"| A3
+A3 -->|"Ajustes y nuevos requisitos"| A1
+
+%% Estilos
+classDef human fill:#f9f4e6,stroke:#666,stroke-width:1px
+classDef llm fill:#e6f0fa,stroke:#666,stroke-width:1px
+classDef pipe fill:#e6f9e6,stroke:#666,stroke-width:1px
+class A1,A2,A3,A4 human
+class B1,B2,B3,B4 llm
+class C1,C2,C3,C4,C5 pipe
+```
+
+El diagrama sintetiza la dinámica central de HILL-SE:
+
+* **El ingeniero humano** inicia el proceso definiendo los requisitos, el contexto del sistema y las restricciones no funcionales.
+  A partir de esa base, diseña la arquitectura conceptual y los diagramas UML que servirán de guía para el desarrollo.
+
+* **El modelo de lenguaje (LLM)** asiste en las fases de especificación y codificación. Su papel no es decidir, sino **proponer**: refinar historias de usuario, redactar criterios de aceptación, generar esqueletos de código, sugerir pruebas y mantener la documentación actualizada. Todas sus contribuciones son revisadas por el humano antes de incorporarse al repositorio.
+
+* **El pipeline de CI/CD** actúa como garante de la calidad formal. A través de herramientas de linting, tipado, pruebas unitarias, cobertura y análisis estático, valida de forma objetiva que el software cumple los estándares definidos.
+  Ninguna modificación se considera finalizada hasta superar los *quality gates* y recibir la aprobación humana en la revisión del Pull Request.
+
+El ciclo se completa con la **retroalimentación hacia el ingeniero humano**, quien evalúa los resultados, ajusta los requisitos y reinicia el proceso de mejora continua.
+De este modo, HILL-SE integra la potencia generativa de los modelos de lenguaje dentro de un marco de **ingeniería verificable, trazable y bajo control humano**, donde cada entrega puede auditarse desde la idea inicial hasta el código final en producción.
+
+# Cómo usar este manual
+
+Cada capítulo combina:
+
+-   **Conceptos teóricos** de ingeniería de software moderna.
+
+-   **Ejemplos reproducibles** (código y diagramas)
+
+-   **Ejercicios prácticos** para consolidar la aplicación de HILL-SE.
+
+
+> 🔧 **Recomendación**\
+> Trabaja este manual dentro de un entorno VSCode + DevContainer,\
+> con Git y Quarto instalados, para poder ejecutar los ejemplos y generar la documentación en tiempo real.
+
+
+# Convenciones tipográficas
+
+-   `código` o `comandos`: fragmentos ejecutables.
+
+-   **Negrita**: conceptos clave.
+
+-   **Cursiva**: referencias o énfasis.
+
+    -   > Callouts: avisos, buenas prácticas o riesgos comunes.
+
+
+# Agradecimientos
+
+Este manual es fruto de la colaboración entre profesionales de ingeniería de software, ciencia de datos y analítica avanzada, con el objetivo de establecer un marco robusto para el trabajo conjunto entre **humanos y modelos de lenguaje**.
+
+Su propósito último es contribuir a una ingeniería más **eficiente, ética y responsable**, capaz de integrar la inteligencia artificial sin renunciar al juicio humano.
