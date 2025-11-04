@@ -1,0 +1,166 @@
+# Diseño y arquitectura
+
+Una vez definidos los requisitos y criterios de aceptación, la siguiente etapa en el flujo HILL-SE consiste en **traducir el problema a una estructura arquitectónica clara y verificable**.\
+En esta fase convergen la experiencia del ingeniero humano, los principios de diseño clásico y la asistencia del modelo de lenguaje para acelerar la elaboración de artefactos como diagramas UML, ADRs y contratos de interfaz.
+
+El propósito de esta fase no es producir un diseño definitivo e inmutable, sino **establecer una arquitectura viva y trazable**, capaz de evolucionar a lo largo de todo el ciclo de vida del proyecto.
+
+------------------------------------------------------------------------
+
+## Modelado con UML
+
+Los **diagramas UML (Unified Modeling Language)** constituyen la base visual del diseño en HILL-SE.\
+Permiten representar las relaciones entre requisitos, componentes, flujos de datos y dependencias de forma comprensible tanto para humanos como para sistemas automatizados.
+
+HILL-SE emplea cuatro tipos principales de diagramas UML:
+
+| Tipo de diagrama | Propósito principal                                             | Ejemplo de uso                                                      |
+|:----------------------|:--------------------------|:---------------------|
+| **Casos de uso** | Describir interacciones entre actores y el sistema.             | Representar las funciones que los usuarios finales pueden ejecutar. |
+| **Clases**       | Mostrar entidades, atributos, métodos y relaciones.             | Modelar la estructura interna de un módulo o librería.              |
+| **Secuencia**    | Visualizar la interacción temporal entre objetos o componentes. | Mostrar el flujo de llamadas entre API, servicios o algoritmos.     |
+| **Componentes**  | Representar la organización lógica y física del sistema.        | Describir microservicios, librerías o módulos independientes.       |
+
+**Principio rector:** los diagramas UML en HILL-SE no son documentos estáticos, sino **artefactos ejecutables** dentro del proceso.\
+Se versionan junto al código (`uml/`), se actualizan automáticamente cuando cambia la arquitectura y se validan en las revisiones del proyecto.
+
+### Asistencia del LLM
+
+El LLM puede asistir en el modelado UML mediante prompts especializados que describen los actores, entidades y relaciones del sistema.\
+El resultado se revisa siempre por el ingeniero humano, quien decide su validez técnica.
+
+**Ejemplo de prompt típico:**
+
+> “Genera un diagrama de clases UML para una librería que resuelva el *Prize-Collecting Orienteering Problem (PCOP)*.\
+> Incluye las clases ProblemInstance, Solver, Solution y sus relaciones principales.”
+
+El LLM devuelve un borrador en formato Mermaid o PlantUML que el humano corrige y valida antes de incorporarlo al repositorio.
+
+------------------------------------------------------------------------
+
+## Decisiones arquitectónicas (ADRs)
+
+Las **Architecture Decision Records (ADRs)** son documentos breves que registran decisiones técnicas relevantes tomadas durante el desarrollo.\
+Cada ADR debe responder a tres preguntas fundamentales:
+
+1.  **¿Qué decisión se tomó?**\
+2.  **¿Por qué se tomó?**\
+3.  **¿Qué consecuencias tiene?**
+
+El formato estándar utilizado en HILL-SE es el siguiente:
+
+# ADR-001: Estructura de la librería PCOP
+
+Date: 2025-01-10\
+Status: Accepted
+
+## Contexto
+
+El sistema debe permitir implementar distintos algoritmos de resolución para el PCOP\
+sin comprometer la extensibilidad ni la mantenibilidad.
+
+## Decisión
+
+Adoptar una arquitectura basada en el patrón Strategy, con una clase abstracta `Solver`\
+y múltiples implementaciones concretas (`GreedySolver`, `GRASPSolver`, `LNSolver`).
+
+## Consecuencias
+
+-   Se facilita la incorporación de nuevos algoritmos sin modificar el núcleo.
+
+-   Requiere definir interfaces comunes y validadores de entrada/salida.
+
+-   Los tests deberán cubrir la interfaz `Solver` y sus variantes.
+
+**Buenas prácticas en HILL-SE:**
+
+-   Cada decisión significativa (arquitectura, patrón, librería, protocolo, estructura de datos) debe documentarse mediante un ADR.\
+-   Los ADR se almacenan en `adr/` y se numeran correlativamente.\
+-   El LLM puede redactar un borrador de ADR a partir del contexto del proyecto, pero el **Tech Lead humano es quien valida su aprobación**.\
+-   Los ADR se referencian desde los diagramas UML y las PR correspondientes.
+
+------------------------------------------------------------------------
+
+## Patrones recomendados
+
+HILL-SE no impone una arquitectura única, pero promueve ciertos **patrones de diseño** que favorecen la separación de responsabilidades, la extensibilidad y la testabilidad.
+
+| Patrón                                        | Aplicación típica                                          | Ventajas en HILL-SE                                                                   |
+|:-----------------|:-------------------------|:---------------------------|
+| **Ports & Adapters (Hexagonal Architecture)** | Microservicios, APIs, librerías modulares.                 | Aísla la lógica de negocio de las dependencias externas. Facilita el testeo unitario. |
+| **Strategy**                                  | Selección dinámica de algoritmos o comportamientos.        | Permite incorporar nuevas estrategias generadas por LLM sin alterar el núcleo.        |
+| **Observer / Publisher–Subscriber**           | Comunicación entre componentes desacoplados.               | Soporta sistemas reactivos y notificaciones sin dependencias directas.                |
+| **Factory Method / Abstract Factory**         | Creación controlada de objetos con dependencias complejas. | Simplifica la inicialización en entornos generados parcialmente por LLM.              |
+| **Facade**                                    | Simplificación de interfaces complejas o legadas.          | Permite mantener una API estable aunque cambien los módulos internos.                 |
+| **Command**                                   | Ejecución de operaciones encapsuladas y reversibles.       | Favorece la trazabilidad y el registro de operaciones (logs, auditoría).              |
+
+El LLM puede sugerir el patrón más adecuado para un problema concreto, pero la decisión final debe basarse en los **criterios técnicos y de negocio** definidos por el ingeniero.
+
+------------------------------------------------------------------------
+
+## Ejercicio práctico: diseño de un módulo siguiendo HILL-SE
+
+**Contexto:**\
+Diseñar el módulo central de una librería Python que implemente el *Prize-Collecting Orienteering Problem (PCOP)*.
+
+**Paso 1. Definición de entidades principales**\
+El ingeniero identifica las clases fundamentales:\
+- `ProblemInstance`: representa el conjunto de nodos, distancias, beneficios y restricciones.\
+- `Solver`: interfaz base para todos los algoritmos.\
+- `Solution`: encapsula una ruta factible y su valor objetivo.
+
+**Paso 2. Selección de patrón arquitectónico**\
+El equipo documenta la decisión en `ADR-001`: patrón **Strategy**.\
+Cada algoritmo (`GreedySolver`, `LNSolver`, `GRASPSolver`) implementa la interfaz `Solver`.
+
+**Paso 3. Elaboración del diagrama UML**
+
+``` mermaid
+classDiagram
+    class ProblemInstance {
+        +nodes: list
+        +distances: list[list]
+        +budget: float
+        +benefits: list
+        +penalties: list
+    }
+
+    class Solver {
+        <<interface>>
+        +solve(instance: ProblemInstance): Solution
+    }
+
+    class GreedySolver {
+        +solve(instance: ProblemInstance): Solution
+    }
+
+    class Solution {
+        +route: list
+        +objective_value: float
+        +is_feasible(): bool
+    }
+
+    ProblemInstance --> Solver : input
+    Solver <|-- GreedySolver
+    Solver --> Solution : output
+```
+
+**Paso 4. Documentación y revisión**
+
+-   Se almacena el diagrama en `uml/pcop_structure.mmd`.
+
+-   Se añade un ADR vinculado al patrón elegido.
+
+-   El LLM puede generar docstrings y ejemplos de uso para cada clase.
+
+-   El Tech Lead valida la consistencia del diseño y la correspondencia con los requisitos definidos.
+
+**Resultado:**\
+Un diseño modular, extensible y auditable, donde cada decisión arquitectónica puede rastrearse hasta los requisitos y criterios de aceptación originales.
+
+## Conclusión
+
+El diseño en HILL-SE se concibe como una **actividad iterativa, documentada y asistida**, en la que el ingeniero humano dirige la arquitectura y el LLM actúa como acelerador cognitivo.\
+Los diagramas UML, los ADRs y los patrones de diseño constituyen el lenguaje común entre ambos.
+
+El resultado es una arquitectura coherente, verificable y preparada para la automatización, que sirve como base sólida para la siguiente fase del ciclo: **la implementación asistida por LLM**.

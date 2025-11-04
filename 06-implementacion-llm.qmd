@@ -1,0 +1,235 @@
+# Implementación asistida por LLM
+
+En la metodología HILL-SE, la fase de **implementación** traduce los diseños y especificaciones verificables en **código funcional, documentado y probado**.\
+A diferencia de los enfoques tradicionales, el desarrollo no se realiza exclusivamente por programación manual, sino mediante una colaboración estructurada entre el **ingeniero humano** y el **modelo de lenguaje**.
+
+El objetivo no es acelerar la escritura de código sin control, sino garantizar que **toda generación automática se produzca dentro de un marco técnico reproducible**, basado en pruebas, tipado y documentación estandarizada.
+
+------------------------------------------------------------------------
+
+## Especificación ejecutable → tests → código
+
+El flujo central de HILL-SE durante la implementación sigue el principio **Spec → Tests → Code**, que asegura la trazabilidad y la calidad desde la primera línea de código.
+
+### Especificación ejecutable
+
+Toda funcionalidad implementada debe derivarse de una **especificación formal** definida en la fase de requisitos.\
+Estas especificaciones suelen expresarse mediante:
+
+-   Historias de usuario con criterios de aceptación en Gherkin.\
+-   ADRs y diagramas UML que definen el contexto arquitectónico.\
+-   Contratos de interfaz y tipos de datos documentados.
+
+Ejemplo (criterio de aceptación simplificado):
+
+``` gherkin
+Scenario: Validar factibilidad de una ruta en PCOP
+  Given una ruta propuesta y una matriz de distancias
+  And un presupuesto máximo de distancia
+  When se calcula la distancia total de la ruta
+  Then el resultado debe ser menor o igual al presupuesto definido
+```
+
+### Tests primero
+
+Antes de generar código, se redactan **tests que verifiquen el comportamiento esperado** según la especificación.\
+Este enfoque convierte el criterio de aceptación en una prueba automatizada, lo que permite validar cualquier código (humano o generado) sin ambigüedades.
+
+Ejemplo (pytest):
+
+``` python
+def test_ruta_factible():
+    ruta = [0, 1, 2, 0]
+    distancias = [
+        [0, 10, 15],
+        [10, 0, 20],
+        [15, 20, 0],
+    ]
+    presupuesto = 40
+    distancia_total = sum(distancias[ruta[i]][ruta[i+1]] for i in range(len(ruta)-1))
+    assert distancia_total <= presupuesto
+```
+
+### Generación de código
+
+Una vez existen tests, el ingeniero puede pedir al LLM la generación del código necesario para satisfacerlos.\
+El prompt de desarrollo debe incluir siempre:
+
+1.  El **propósito** del módulo.
+
+2.  Las **entradas y salidas esperadas**.
+
+3.  Las **pruebas existentes**.
+
+4.  Los **criterios de estilo y calidad** (PEP 8, tipado, docstrings, manejo de errores).
+
+Ejemplo de prompt de implementación:
+
+> “Genera la función `calcular_distancia_total(ruta, distancias)` en Python.\
+> Debe cumplir los tests unitarios proporcionados, usar tipado estático, incluir docstring con ejemplo, y devolver la distancia total recorrida.”
+
+El resultado se valida automáticamente mediante `pytest` y `mypy`, y el ingeniero revisa manualmente:
+
+-   la coherencia lógica del algoritmo,
+
+-   el cumplimiento de los contratos de entrada/salida,
+
+-   la claridad de los docstrings,
+
+-   y la ausencia de dependencias innecesarias.
+
+## Uso responsable de Copilot y ChatGPT
+
+Las herramientas generativas deben integrarse **bajo control humano** y con criterios explícitos de calidad.
+
+### Reglas básicas
+
+| Área                        | Directriz HILL-SE                                                                                                      |
+|-----------------|-------------------------------------------------------|
+| **Propósito**               | Utilizar el LLM para acelerar tareas estructuradas (boilerplate, documentación, tests, refactorizaciones controladas). |
+| **Autoridad técnica**       | El ingeniero humano revisa y aprueba toda propuesta antes de incluirla en el repositorio.                              |
+| **Verificación automática** | Cada commit generado por LLM debe superar linters, tipado y tests antes del merge.                                     |
+| **Privacidad y seguridad**  | Nunca enviar código sensible, credenciales ni datos de cliente a sistemas externos.                                    |
+| **Prompts versionados**     | Guardar en `prompts/` los contextos utilizados para la generación, con fecha y propósito.                              |
+
+### Copilot en VSCode
+
+Copilot resulta útil para:
+
+-   completar estructuras repetitivas;
+
+-   generar casos de test adicionales;
+
+-   crear esqueletos de funciones o clases.
+
+Sin embargo, no debe emplearse para:
+
+-   definir arquitectura;
+
+-   modificar algoritmos críticos sin validación;
+
+-   realizar cambios automáticos masivos sin revisión.
+
+### ChatGPT u otros LLM externos
+
+Su función principal en esta fase es servir de **asistente técnico y documental**, proporcionando:
+
+-   variantes de implementación;
+
+-   docstrings y ejemplos de uso;
+
+-   explicaciones o comparaciones entre enfoques;
+
+-   revisiones de complejidad o estilo.
+
+El resultado final siempre se integra en el flujo **CI/CD + revisión humana** antes de aceptarse.
+
+## Docstrings y tipado estricto
+
+En HILL-SE, los docstrings y los tipos forman parte integral del contrato del sistema.
+
+### Tipado (mypy)
+
+Todo el código debe usar **anotaciones de tipo completas**, verificadas mediante `mypy --strict`.\
+Esto permite a los LLMs generar código más coherente y facilita la validación automática.
+
+Ejemplo:
+
+``` python
+from typing import List
+
+def calcular_distancia_total(ruta: List[int], distancias: List[List[float]]) -> float:
+    """
+    Calcula la distancia total de una ruta dada una matriz de distancias.
+
+    Parameters
+    ----------
+    ruta : List[int]
+        Secuencia de nodos visitados.
+    distancias : List[List[float]]
+        Matriz cuadrada de distancias.
+
+    Returns
+    -------
+    float
+        Distancia total de la ruta.
+
+    Examples
+    --------
+    >>> calcular_distancia_total([0, 1, 2, 0], [[0,10,15],[10,0,20],[15,20,0]])
+    45.0
+    """
+    return sum(distancias[ruta[i]][ruta[i+1]] for i in range(len(ruta)-1))
+```
+
+### Docstrings ejecutables
+
+Los docstrings deben seguir un formato estándar (Google o NumPy) e incluir **ejemplos verificables**, preferiblemente comprobados mediante `doctest` o integrados en los tests unitarios.
+
+**Regla general:** si un ejemplo aparece en un docstring, debe ser **reproducible y testable**.
+
+## Ejercicio práctico: flujo Spec → Tests → Code
+
+**Contexto:**\
+Implementar una clase `Solution` para encapsular el resultado de un solver PCOP.
+
+**1. Especificación**
+
+```         
+Scenario: Validar una solución factible
+  Given una lista de nodos visitados
+  And una matriz de distancias y un presupuesto máximo
+  When se crea la instancia Solution
+  Then debe marcarse como factible si la distancia total no supera el presupuesto
+```
+
+**2. Tests**
+
+``` python
+from pcop.models import Solution
+
+def test_solution_factible():
+    s = Solution(route=[0, 1, 2, 0],
+                 distances=[[0,10,15],[10,0,20],[15,20,0]],
+                 budget=50)
+    assert s.is_feasible() is True
+```
+
+**3. Implementación (generada por LLM y revisada por humano)**
+
+``` python
+from typing import List
+
+class Solution:
+    """Representa una solución del problema PCOP."""
+
+    def __init__(self, route: List[int], distances: List[List[float]], budget: float):
+        self.route = route
+        self.distances = distances
+        self.budget = budget
+
+    def total_distance(self) -> float:
+        """Calcula la distancia total recorrida."""
+        return sum(self.distances[self.route[i]][self.route[i+1]] for i in range(len(self.route)-1))
+
+    def is_feasible(self) -> bool:
+        """Indica si la solución cumple el presupuesto de distancia."""
+        return self.total_distance() <= self.budget
+```
+
+**4. Validación automática**
+
+-   `pytest` ejecuta los tests definidos.
+
+-   `mypy` confirma el cumplimiento del tipado.
+
+-   `flake8` y `black` validan el estilo.
+
+-   El resultado pasa por revisión humana antes del merge.
+
+## Conclusión
+
+La implementación en HILL-SE se apoya en los LLMs como **asistentes disciplinados**, no como autores autónomos.\
+El proceso *Spec → Tests → Code* garantiza que cada bloque de código generado tenga una especificación previa, una prueba verificable y una validación automatizada.
+
+El ingeniero humano conserva la dirección técnica y la responsabilidad sobre la integridad del sistema, mientras el LLM aporta velocidad, documentación y consistencia en tareas repetitivas o estructurales.

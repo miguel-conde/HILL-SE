@@ -1,0 +1,196 @@
+# Validación y verificación
+
+En la metodología **HILL-SE**, la validación y la verificación garantizan que el software cumpla con los requisitos funcionales, los criterios de aceptación y los estándares de calidad técnica definidos.\
+Esta fase constituye el núcleo del principio *Human-in-the-Loop*: la verificación es automática, pero la validación es siempre humana.
+
+El objetivo es doble: 1. **Detectar errores, defectos y vulnerabilidades** de forma temprana y reproducible.\
+2. **Asegurar la trazabilidad** entre requisitos, tests, código y decisiones arquitectónicas.
+
+------------------------------------------------------------------------
+
+## Tests unitarios, de integración y contractuales
+
+HILL-SE adopta una visión jerárquica de las pruebas, donde cada nivel tiene una función específica dentro del ciclo de calidad.
+
+### Tests unitarios
+
+Verifican el comportamiento de funciones, clases o métodos individuales.\
+Se ejecutan con `pytest` y forman la base del pipeline de integración continua.
+
+**Buenas prácticas:** - Un test por criterio de aceptación o condición límite.\
+- Nombres descriptivos (`test_[funcion]_[condicion]`).\
+- Uso de fixtures reproducibles y control de aleatoriedad (`random.seed()` o `numpy.random.default_rng()`).
+
+**Ejemplo:**
+
+``` python
+def test_total_distance_correcta():
+    ruta = [0, 1, 2, 0]
+    distancias = [[0, 10, 15], [10, 0, 20], [15, 20, 0]]
+    assert calcular_distancia_total(ruta, distancias) == 45
+```
+
+### Tests de integración
+
+Comprueban que los módulos interactúan correctamente.\
+En proyectos HILL-SE suelen incluir:
+
+-    Pruebas de *end-to-end* sobre casos Gherkin.
+
+-    Validaciones de API o CLI.
+
+-    Ejecuciones controladas en entornos de prueba Docker o DevContainer.
+
+**Ejemplo:**
+
+```         
+def test_solver_end_to_end(tmp_path):
+    instance = ProblemInstance(...)
+    solver = GreedySolver()
+    sol = solver.solve(instance)
+    assert sol.is_feasible()
+    assert sol.objective_value > 0
+```
+
+### Tests contractuales
+
+Verifican la estabilidad de interfaces y acuerdos entre módulos, servicios o librerías externas.\
+Pueden implementarse mediante:
+
+-   *Mock servers* o *stubs*.
+
+-   Tests de contrato (por ejemplo, `pact-python` o `schemathesis`).
+
+-    Validación de compatibilidad binaria o semántica.
+
+**Regla HILL-SE:**\
+Cada contrato o interfaz documentado en un ADR debe tener una prueba asociada en `tests/contracts/`.
+
+## Property-based testing con Hypothesis
+
+El enfoque *property-based* permite comprobar **propiedades invariantes** del sistema con conjuntos de datos generados automáticamente.\
+En lugar de definir casos concretos, se especifican reglas generales que deben cumplirse para cualquier entrada válida.
+
+**Ejemplo:**
+
+``` python
+from hypothesis import given, strategies as st
+from pcop.models import Solution
+
+@given(st.lists(st.integers(min_value=0, max_value=10), min_size=3, max_size=10))
+def test_ruta_valida_no_repite_nodos(ruta):
+    s = Solution(route=ruta, distances=[[0]*11 for _ in range(11)], budget=1000)
+    assert len(set(ruta)) == len(ruta)
+```
+
+**Ventajas:**
+
+-   Aumenta la cobertura sin escribir más código.
+
+-   Detecta errores ocultos o condiciones límite.
+
+-   Favorece la reproducibilidad cuando se controla la semilla.
+
+**Buenas prácticas:**
+
+-    Documentar las propiedades verificadas.
+
+-    Limitar el número de iteraciones (`@settings(max_examples=100)`).
+
+-    Integrar los resultados en los informes de cobertura.
+
+## Cobertura y análisis estático
+
+HILL-SE exige que el código no sólo funcione, sino que mantenga **estilo, seguridad y consistencia estructural**.\
+Para ello se utilizan herramientas automáticas integradas en el pipeline CI/CD.
+
+### Análisis de cobertura
+
+-   `pytest-cov` mide el porcentaje de código ejecutado por los tests.
+
+-    Objetivo recomendado: **≥ 90 % de cobertura en módulos de dominio**.
+
+-   Los informes XML se publican como artefactos del pipeline y se visualizan en SonarQube o SonarCloud.
+
+### Linting y estilo
+
+-    **flake8**, **black** y **isort** garantizan el cumplimiento de PEP 8 y la coherencia del estilo.
+
+-   Cualquier advertencia bloquea el merge hasta su corrección.
+
+### Tipado estático
+
+-   `mypy --strict` valida anotaciones de tipo y previene errores en tiempo de compilación.
+
+-   El análisis de tipos se combina con los docstrings para generar documentación confiable.
+
+### Seguridad
+
+-   `bandit` identifica vulnerabilidades comunes.
+
+-    `pip-audit` revisa dependencias y CVEs conocidas.
+
+-   Los resultados deben almacenarse en `reports/security/`.
+
+**Ejemplo de ejecución integrada:**
+
+``` bash
+black --check src
+isort --check-only src
+flake8 src
+mypy src
+pytest --cov=src --cov-report=xml
+bandit -r src
+pip-audit
+```
+
+## Quality gates automáticos y revisión humana
+
+El pipeline CI/CD en HILL-SE combina verificaciones automáticas y revisión manual para garantizar la calidad objetiva y el juicio experto.
+
+**Etapas automáticas:**
+
+1.   **Análisis estático:** linting, tipado y seguridad.
+
+2.   **Ejecución de pruebas:** unitarias, integración y property-based.
+
+3.   **Cobertura mínima:** umbral definido en `pytest.ini` o en la configuración de Sonar.
+
+4.  **Generación de artefactos:** cobertura, reportes, documentación.
+
+**Revisión humana:**
+
+-   Validación semántica: comprueba que la funcionalidad implementada corresponde a los requisitos.
+
+-    Evaluación de calidad conceptual: claridad del código, estructura, complejidad y mantenibilidad.
+
+-    Confirmación de trazabilidad: cada PR debe referenciar historias de usuario, ADRs y tests asociados.
+
+**Checklist de revisión (extracto):**
+
+| Verificación                        | Estado |
+|-------------------------------------|--------|
+| Todos los tests pasan en CI         | ☐      |
+| Cobertura ≥ 90 %                    | ☐      |
+| mypy sin errores                    | ☐      |
+| ADR actualizado si procede          | ☐      |
+| UML o diagramas coherentes          | ☐      |
+| Docstrings con ejemplos verificados | ☐      |
+| Revisión humana realizada           | ☐      |
+
+La fusión de resultados automáticos y validación humana completa el ciclo *Human-in-the-Loop*, cerrando la iteración de calidad en cada entrega.
+
+## Conclusión
+
+La fase de validación y verificación en HILL-SE constituye la frontera entre la generación asistida y la ingeniería responsable.\
+Los LLMs pueden colaborar en la creación de pruebas y documentación, pero la **garantía de calidad** recae en el ingeniero humano y en el pipeline automatizado.
+
+Un sistema HILL-SE se considera listo para release sólo cuando:
+
+-    todos los quality gates se cumplen,
+
+-    los artefactos son trazables,
+
+-   y un revisor humano aprueba la entrega.
+
+Este equilibrio entre automatización y control experto es el fundamento de la **confianza verificable** en el software desarrollado bajo HILL-SE.

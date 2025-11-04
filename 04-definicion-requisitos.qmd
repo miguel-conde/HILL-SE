@@ -1,0 +1,152 @@
+# Definición y análisis de requisitos
+
+El punto de partida de cualquier proyecto basado en HILL-SE es la **definición clara, verificable y trazable de los requisitos**.\
+En este marco, la fase de definición no se limita a recoger necesidades del negocio, sino que las transforma en **especificaciones ejecutables** que guían todo el ciclo de vida del software.
+
+HILL-SE propone una forma disciplinada de conectar el lenguaje natural del dominio con los artefactos técnicos del desarrollo, utilizando criterios de aceptación estructurados y revisiones iterativas Human-in-the-Loop.
+
+------------------------------------------------------------------------
+
+## Historias de usuario y criterios de aceptación
+
+Una **historia de usuario** describe una necesidad del sistema desde la perspectiva del usuario o del negocio.\
+Su función no es especificar cómo se implementará la solución, sino qué resultado observable debe producir el sistema.
+
+El formato habitual es:
+
+> **Como** \[tipo de usuario\]\
+> **quiero** \[acción o funcionalidad\]\
+> **para** \[beneficio o resultado esperado\].
+
+En HILL-SE, cada historia debe acompañarse de **criterios de aceptación (AC)** expresados en lenguaje estructurado —preferentemente **Gherkin**—, que definen las condiciones de cumplimiento de la historia.\
+Estos criterios se convertirán después en pruebas automatizadas o casos de validación.
+
+**Ejemplo:**
+
+> **Historia de usuario**\
+> Como responsable de rutas logísticas,\
+> quiero obtener una planificación de entregas que maximice el beneficio total,\
+> para reducir los costes de transporte y mejorar la productividad.
+
+**Criterios de aceptación (Gherkin):**
+
+``` gherkin
+Scenario: Generar planificación de rutas con beneficio máximo
+  Given una lista de ubicaciones con beneficios y penalizaciones
+  And un presupuesto máximo de distancia o tiempo
+  When ejecuto el algoritmo de optimización
+  Then obtengo una ruta que maximiza el beneficio neto
+  And el resultado respeta las restricciones definidas
+```
+
+Este formato transforma una necesidad en una especificación **medible y comprobable**.\
+A partir de estos criterios, pueden generarse automáticamente pruebas, documentación y código de validación.
+
+## Uso del LLM como asistente de refinamiento
+
+El modelo de lenguaje desempeña un papel clave durante la definición, pero **nunca sustituye al ingeniero**.\
+Su función es ayudar a **refinar, estructurar y formalizar** los requisitos expresados por el usuario o el equipo de negocio.
+
+Entre sus usos más habituales:
+
+-   **Normalización lingüística:** reescribir historias ambiguas o inconsistentes manteniendo su intención original.
+
+-   **Generación de criterios de aceptación:** a partir de una historia libre, producir escenarios Gherkin completos con casos positivos y negativos.
+
+-   **Identificación de supuestos y dependencias:** detectar condiciones implícitas o variables no especificadas.
+
+-   **Clasificación de requisitos:** separar requisitos funcionales, no funcionales y de restricción.
+
+-   **Revisión de completitud:** comprobar que cada historia posee sus criterios de aceptación y sus dependencias declaradas.
+
+**Ejemplo de uso guiado:**
+
+> Entrada del ingeniero:\
+> “El sistema debe permitir al usuario configurar alertas personalizadas de rendimiento.”
+>
+> Salida asistida por LLM:
+>
+> -   Historia de usuario en formato estándar.
+>
+> -   Tres escenarios Gherkin: creación, edición y eliminación de alertas.
+>
+> -   Lista de supuestos (permisos, frecuencia de actualización, límites por usuario).
+
+El resultado es un conjunto de artefactos más precisos y coherentes, que pueden integrarse directamente en la documentación del proyecto (`docs/user_stories/` o `docs/requisitos/`).
+
+## Requisitos no funcionales
+
+Los **requisitos no funcionales (NFR)** definen las propiedades de calidad del sistema —rendimiento, disponibilidad, seguridad, usabilidad, mantenibilidad— y son esenciales para orientar las decisiones arquitectónicas.
+
+En HILL-SE, los NFR se tratan con el mismo rigor que los funcionales:
+
+-   Se documentan explícitamente.
+
+-   Se asocian a métricas o umbrales medibles.
+
+-   Se vinculan con pruebas automáticas y validaciones de calidad.
+
+**Ejemplo:**
+
+| Categoría          | Descripción                                                                              | Métrica / Umbral                  |
+|-----------------|--------------------------------------|-----------------|
+| **Rendimiento**    | El algoritmo debe resolver instancias de tamaño medio (n=500) en menos de 5 segundos.    | Tiempo de ejecución ≤ 5 s         |
+| **Usabilidad**     | La API debe exponer endpoints con nombres semánticos y documentación automática OpenAPI. | Validación de OpenAPI sin errores |
+| **Seguridad**      | Las dependencias deben pasar auditoría sin vulnerabilidades críticas.                    | `pip-audit` sin alertas CRITICAL  |
+| **Mantenibilidad** | El código debe cumplir PEP 8 y obtener puntuación ≥ A en SonarQube.                      | Sonar rating ≥ A                  |
+
+Los NFR se consideran **criterios globales de aceptación** del proyecto y se verifican de forma continua a través del pipeline de calidad.
+
+## Ejercicio guiado: definición inicial de un proyecto
+
+A continuación se muestra un ejemplo de flujo completo de definición según HILL-SE, aplicable a cualquier dominio.
+
+**Objetivo:** definir la funcionalidad inicial de una librería para resolver el *Prize-Collecting Orienteering Problem (PCOP)*.
+
+1.  **Entrada libre del negocio (texto informal):**\
+    “Queremos una librería que calcule rutas con beneficios y penalizaciones, encontrando el recorrido que maximice el beneficio neto bajo una restricción de distancia.”
+
+2.  **Intervención del ingeniero humano:**
+
+    -   Identifica el tipo de problema (optimización combinatoria).
+
+    -   Determina el nivel de detalle requerido (API de Python).
+
+    -   Define los parámetros principales (beneficio, penalización, distancia máxima).
+
+3.  **Asistencia del LLM:**
+
+    -   Reescribe la historia de usuario.
+
+    -   Propone criterios Gherkin.
+
+    -   Sugiere posibles casos límite (nodos sin beneficio, restricciones nulas, datos inconsistentes).
+
+4.  **Salida consolidada:**
+
+``` gherkin
+Scenario: Resolver PCOP con datos válidos
+  Given un conjunto de nodos con beneficios y penalizaciones definidos
+  And una matriz de distancias válida
+  And un presupuesto máximo de distancia
+  When ejecuto el solver predeterminado
+  Then obtengo una ruta factible que maximiza el beneficio neto
+  And el tiempo de cómputo no supera los 5 segundos
+```
+
+5.  **Registro de artefactos:**
+
+    -   `docs/user_stories/pcop_basico.md`
+
+    -   `tests/e2e/test_pcop_basico.py`
+
+    -   `prompts/pcop_refinement.txt`
+
+Este proceso ilustra cómo el ingeniero **conduce la definición**, el LLM **asiste en la formalización** y ambos **producen artefactos reutilizables y verificables**.
+
+## Conclusión
+
+La fase de definición en HILL-SE no es un trámite inicial, sino el **fundamento de la trazabilidad del proyecto**.\
+Cada requisito se convierte en un punto de control verificable y auditable que guiará el diseño, la implementación y la validación.
+
+El ingeniero humano dirige el proceso, los LLMs lo potencian y los artefactos resultantes aseguran que el sistema evolucione de manera coherente, medible y reproducible
