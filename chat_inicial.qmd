@@ -504,7 +504,7 @@ Excelente pregunta — y muy buena ocasión para formalizarlo.
 ### 🔹 Desglose del acrónimo
 
 | Letra  | Significado              | Rol dentro del método                                                                                             |
-|----------------|----------------|---------------------------------------|
+|-----------------|-----------------|--------------------------------------|
 | **H**  | **Human**                | El ingeniero humano define requisitos, arquitectura, verifica resultados y aprueba decisiones.                    |
 | **I**  | **In-the-Loop**          | El humano supervisa y cierra el ciclo en cada interacción con el LLM. No hay pasos autónomos.                     |
 | **LL** | **Large Language Model** | El modelo asiste en tareas cognitivas: análisis de requisitos, generación de código, documentación, pruebas, etc. |
@@ -563,7 +563,7 @@ Combina los principios de la ingeniería de software clásica con las nuevas cap
 ### Acrónimo
 
 | Sigla  | Significado              | Rol dentro del método                                                                                                |
-|----------------|----------------|---------------------------------------|
+|-----------------|-----------------|--------------------------------------|
 | **H**  | **Human**                | El ingeniero humano define requisitos, diseña la arquitectura, valida resultados y asume la responsabilidad técnica. |
 | **I**  | **In-the-Loop**          | Cada fase incluye verificación humana; el LLM nunca ejecuta tareas críticas sin supervisión.                         |
 | **LL** | **Large Language Model** | El modelo asiste en análisis, diseño, generación de código, documentación, testing y refactorización.                |
@@ -1543,115 +1543,55 @@ Tomo nota de tus dos recordatorios:
 
 8.  **Documentación y trazabilidad**
 
-    -   
-
     -   Docstrings ejecutables
-
-    -   
 
     -   Generación automática de documentación (Sphinx, MkDocs, Quarto)
 
-    -   
-
     -   Enlace entre requisitos → código → tests → PRs
-
-    -   
 
     -   Ejercicio: trazabilidad completa de una historia de usuario
 
-    -   
-
-9.  
-
-10. **Ciclo de vida y CI/CD**
-
-    -   
+9.  **Ciclo de vida y CI/CD**
 
     -   Pipelines en GitHub Actions
 
-    -   
-
     -   Quality gates: lint, types, tests, security, coverage
-
-    -   
 
     -   Versionado semántico y releases
 
-    -   
-
     -   Auditoría y SBOM
 
-    -   
-
-11. 
-
-12. **Gestión de proyecto y roles**
-
-    -   
+10. **Gestión de proyecto y roles**
 
     -   DoR/DoD adaptados a HILL-SE
 
-    -   
-
     -   Roles humanos: Tech Lead, Developer, QA, Architect, Product Owner
-
-    -   
 
     -   Roles del LLM: Asistente, Redactor, Refactor, Test Advisor
 
-    -   
-
     -   Gobernanza y métricas de madurez
-
-    -   
-
-13. 
 
 ### **Parte III — Ecosistema y herramientas**
 
-11. 
-
-12. **Entorno de desarrollo**
-
-    -   
+11. **Entorno de desarrollo**
 
     -   VSCode + DevContainer + GitHub Copilot
 
-    -   
-
     -   Pre-commit, linters, tipado, coverage
-
-    -   
 
     -   Integración con SonarQube / SonarCloud
 
-    -   
-
-13. 
-
-14. **Tres capas de apoyo con LLMs**
-
-    -   
+12. **Tres capas de apoyo con LLMs**
 
     -   (Se desarrollará más adelante)
 
-    -   
-
     -   ChatGPT personalizado HILL-SE Coach
-
-    -   
 
     -   Copilot en VSCode (autocompletado y sugerencias)
 
-    -   
-
     -   Agentes especializados (UML Drafter, ADR Maker, Test Engineer, etc.)
 
-    -   
-
-15. 
-
-16. **Configuración y prácticas seguras**
+13. **Configuración y prácticas seguras**
 
     -   
 
@@ -1667,7 +1607,7 @@ Tomo nota de tus dos recordatorios:
 
     -   
 
-17. 
+14. 
 
 ### **Parte IV — Casos de uso y ejemplos**
 

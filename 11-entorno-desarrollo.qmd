@@ -1,0 +1,217 @@
+# Entorno de desarrollo
+
+El entorno de desarrollo en HILL-SE está diseñado para maximizar la reproducibilidad, la coherencia técnica y la integración entre herramientas humanas y automáticas.\
+Su objetivo es crear un **espacio de trabajo estandarizado y auditable**, donde el ingeniero humano y los modelos de lenguaje colaboren dentro de un marco controlado y verificable.
+
+------------------------------------------------------------------------
+
+## VSCode + DevContainer + GitHub Copilot
+
+### VSCode como entorno central
+
+Visual Studio Code es el entorno de referencia recomendado para proyectos HILL-SE por su integración con Git, Docker, linters, debuggers, entornos virtuales y herramientas de IA generativa.
+
+Las configuraciones básicas incluyen:
+
+-   **Extensiones recomendadas:**
+
+    -   *Python* (Microsoft)
+    -   *Dev Containers*
+    -   *GitLens*
+    -   *Black Formatter*
+    -   *Flake8*
+    -   *mypy type checker*
+    -   *SonarLint*
+    -   *GitHub Copilot*
+
+-   **Configuración mínima (`.vscode/settings.json`):**
+
+    ``` json
+    {
+      "python.formatting.provider": "black",
+      "python.linting.flake8Enabled": true,
+      "python.linting.mypyEnabled": true,
+      "editor.formatOnSave": true,
+      "python.analysis.typeCheckingMode": "strict",
+      "notebook.output.textLineLimit": 100
+    }
+    ```
+
+Esta configuración garantiza que el entorno local del desarrollador refleje las mismas validaciones que el pipeline CI/CD, reduciendo discrepancias entre entornos.
+
+### DevContainer
+
+El uso de **DevContainers** garantiza la portabilidad y la coherencia del entorno entre desarrolladores y entornos de CI.\
+Todo proyecto HILL-SE debe incluir un fichero `.devcontainer/devcontainer.json` que defina el entorno completo.
+
+**Ejemplo:**
+
+``` json
+{
+  "name": "hill-se-env",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "ms-python.flake8",
+        "ms-python.mypy-type-checker",
+        "sonarsource.sonarlint-vscode",
+        "github.copilot"
+      ]
+    }
+  },
+  "postCreateCommand": "pip install -r requirements.txt && pre-commit install",
+  "mounts": ["source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"],
+  "remoteUser": "vscode"
+}
+```
+
+Este contenedor ofrece un entorno reproducible con las herramientas necesarias para ejecutar linters, tests, auditorías de seguridad y análisis de calidad sin configuraciones adicionales.
+
+### GitHub Copilot
+
+Copilot se utiliza dentro del flujo HILL-SE como **asistente de bajo nivel**, enfocado en productividad y boilerplate.\
+Debe operar bajo supervisión humana y en coherencia con los prompts y políticas del proyecto.
+
+**Uso recomendado:**
+
+-    Autocompletar funciones sencillas o patrones repetitivos.
+
+-    Sugerir tests complementarios o refactorizaciones menores.
+
+-    Generar ejemplos o docstrings coherentes con la especificación existente.
+
+**Uso no recomendado:**
+
+-    Definir arquitectura o patrones.
+
+-   Modificar algoritmos críticos sin revisión.
+
+-    Introducir dependencias o configuraciones no aprobadas.
+
+El Tech Lead puede configurar reglas de exclusión mediante `.copilotignore` y registrar los prompts usados en `prompts/` para trazabilidad.
+
+## Pre-commit, linters, tipado y coverage
+
+HILL-SE exige la ejecución sistemática de validaciones antes de cada commit.\
+Para ello se emplea el framework **pre-commit**, que asegura la uniformidad del código y la detección temprana de errores.
+
+### Configuración de pre-commit
+
+**Archivo `.pre-commit-config.yaml`:**
+
+``` yaml
+repos:
+  - repo: https://github.com/psf/black
+    rev: 23.9.1
+    hooks:
+      - id: black
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+  - repo: https://github.com/PyCQA/flake8
+    rev: 6.1.0
+    hooks:
+      - id: flake8
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.7.1
+    hooks:
+      - id: mypy
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+      - id: python-check-blanket-noqa
+```
+
+Instalación:
+
+``` bash
+pip install pre-commit
+pre-commit install
+```
+
+Esto garantiza que ningún commit pueda subirse sin pasar por los linters y validaciones de tipado.
+
+### Linters y tipado estricto
+
+-   **black:** formato consistente.
+
+-   **flake8:** estilo y errores de sintaxis.
+
+-    **sort:** orden de importaciones.
+
+-    **mypy:** validación de anotaciones de tipo.
+
+-    **pydocstyle:** validación de docstrings.
+
+Todos los errores deben resolverse antes del commit o PR.
+
+### Cobertura de pruebas
+
+La cobertura se mide con `pytest-cov` y se integra en los quality gates del pipeline CI/CD.
+
+**Ejemplo:**
+
+``` bash
+pytest --cov=src --cov-report=term-missing --cov-fail-under=90
+```
+
+Esto asegura que las nuevas funcionalidades mantengan un nivel de cobertura mínimo del 90 % en módulos de negocio y un 80 % global.
+
+## Integración con SonarQube / SonarCloud
+
+La supervisión continua de calidad en HILL-SE se apoya en **SonarQube** o su versión SaaS, **SonarCloud**.\
+Ambas permiten consolidar métricas técnicas y de seguridad en un único tablero auditable.
+
+### Configuración básica (`sonar-project.properties`)
+
+``` ini
+sonar.projectKey=hill-se-example
+sonar.organization=my-org
+sonar.python.version=3.11
+sonar.sources=src
+sonar.tests=tests
+sonar.test.inclusions=tests/**
+sonar.coverageReportPaths=coverage.xml
+sonar.exclusions=**/__pycache__/**
+```
+
+### Integración con GitHub Actions
+
+``` yaml
+- name: SonarCloud Scan
+  uses: SonarSource/sonarcloud-github-action@v2
+  with:
+    projectBaseDir: .
+    args: >
+      -Dsonar.organization=my-org
+      -Dsonar.projectKey=hill-se-example
+      -Dsonar.python.coverage.reportPaths=coverage.xml
+  env:
+    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+```
+
+### Métricas clave supervisadas
+
+| Categoría            | Métrica                       | Umbral           |
+|----------------------|-------------------------------|------------------|
+| **Cobertura**        | \% líneas cubiertas por tests | ≥ 90 %           |
+| **Duplicación**      | \% líneas duplicadas          | ≤ 3 %            |
+| **Complejidad**      | Complejidad ciclomática media | ≤ 10             |
+| **Deuda técnica**    | Tiempo estimado de corrección | ≤ 8 h por sprint |
+| **Vulnerabilidades** | Número crítico                | 0                |
+
+Los informes de Sonar se integran en los quality gates y condicionan la aprobación de merges o releases.
+
+## Conclusión
+
+El entorno de desarrollo HILL-SE proporciona un marco **reproducible, estandarizado y auditable**, donde las herramientas de desarrollo, los linters y los pipelines están alineados con los principios metodológicos del sistema.
+
+VSCode, DevContainers y SonarQube actúan como el **ecosistema operativo del ingeniero Human-in-the-Loop**, asegurando que el trabajo asistido por IA mantenga la precisión técnica, la trazabilidad y la calidad profesional exigida en un proyecto HILL-SE.

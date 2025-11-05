@@ -1,0 +1,204 @@
+# Ciclo de vida y CI/CD
+
+El ciclo de vida en HILL-SE se sustenta en la **automatización controlada** y la **supervisión humana continua**.\
+Su propósito es garantizar que todo el flujo —desde la escritura de código hasta la publicación de una release— se realice de manera trazable, reproducible y verificable.
+
+La integración continua (CI) y la entrega continua (CD) se conciben como **la encarnación operativa del principio Human-in-the-Loop**: los LLMs pueden generar artefactos, pero sólo los pipelines automáticos y la revisión humana determinan si el resultado es válido para avanzar a la siguiente fase.
+
+------------------------------------------------------------------------
+
+## Pipelines en GitHub Actions
+
+HILL-SE recomienda la orquestación de pipelines CI/CD mediante **GitHub Actions**, aunque la filosofía es aplicable a otros sistemas (GitLab CI, Azure DevOps, Jenkins).
+
+Cada commit o pull request activa un flujo de validación estructurado en etapas:
+
+1.  **Setup del entorno**
+    -   Instalación del entorno virtual y dependencias (`requirements.txt` o `pyproject.toml`).\
+    -   Ejecución de linters y analizadores estáticos.
+2.  **Ejecución de pruebas**
+    -   Tests unitarios, de integración y *property-based*.\
+    -   Medición de cobertura (`pytest-cov`).\
+    -   Validación de doctests y ejemplos ejecutables.
+3.  **Análisis de calidad y seguridad**
+    -   `flake8`, `black`, `isort`, `mypy`, `bandit`, `pip-audit`.\
+    -   Publicación de resultados en artefactos o en SonarQube.
+4.  **Build y documentación**
+    -   Generación automática con Sphinx o Quarto.\
+    -   Publicación de artefactos (`upload-artifact`) o despliegue de previews.
+5.  **Release y etiquetado**
+    -   Creación automática de versiones siguiendo semver.\
+    -   Generación de changelog, paquetes y firma opcional del release.
+
+**Ejemplo de flujo mínimo de CI (extracto simplificado):**
+
+``` yaml
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov flake8 mypy bandit pip-audit
+      - name: Run quality gates
+        run: |
+          flake8 src
+          mypy src
+          pytest --cov=src --cov-report=xml
+          bandit -r src
+          pip-audit
+```
+
+El pipeline no despliega código automáticamente sin la **aprobación humana** en la Pull Request.\
+El ingeniero responsable debe revisar los resultados de los *quality gates* y firmar digitalmente la aprobación.
+
+## Quality gates: lint, types, tests, security, coverage
+
+Los **quality gates** son los filtros que garantizan que ningún cambio que reduzca la calidad técnica pueda integrarse en el repositorio principal.\
+En HILL-SE se dividen en cinco categorías fundamentales:
+
+| Tipo de control   | Herramientas                         | Umbral / Requisito              |
+|------------------|-----------------------------|--------------------------|
+| **Lint / Estilo** | `flake8`, `black`, `isort`           | Cumplimiento PEP 8 sin errores. |
+| **Tipado**        | `mypy --strict`                      | Sin errores de tipo.            |
+| **Tests**         | `pytest`, `pytest-cov`, `hypothesis` | Todos los tests deben pasar.    |
+| **Seguridad**     | `bandit`, `pip-audit`                | Cero vulnerabilidades críticas. |
+| **Cobertura**     | `pytest-cov`, `SonarQube`            | ≥ 90 % en módulos de dominio.   |
+
+### Integración con SonarQube
+
+SonarQube (o SonarCloud) actúa como **panel central de calidad**, agregando métricas de:
+
+-   duplicación de código,
+
+-   complejidad ciclomática,
+
+-   deuda técnica,
+
+-   vulnerabilidades,
+
+-   y cobertura.
+
+El resultado se usa como condición de merge:
+
+> si algún indicador cae por debajo de los umbrales definidos, el pipeline bloquea la integración.
+
+### Validación local previa
+
+Antes de enviar una Pull Request, el desarrollador debe ejecutar:
+
+``` bash
+black . && isort . && flake8
+mypy src
+pytest --cov=src
+bandit -r src
+pip-audit
+```
+
+El objetivo es minimizar ciclos de corrección en CI y garantizar que los resultados sean reproducibles entre entorno local y remoto.
+
+## Versionado semántico y releases
+
+HILL-SE adopta el esquema de **versionado semántico (semver)**:\
+`MAJOR.MINOR.PATCH`
+
+-   **MAJOR:** cambios incompatibles con versiones anteriores.
+
+-   **MINOR:** nuevas funcionalidades compatibles.
+
+-    **PATCH:** correcciones sin cambio funcional.
+
+Cada release se gestiona de forma automática mediante pipeline y revisión humana.\
+El proceso estándar incluye:
+
+1.   **Tagging automático** según el contenido del changelog.
+
+2.   **Generación del changelog** a partir de commits y PRs etiquetadas (`feat`, `fix`, `docs`, etc.).
+
+3.   **Creación del paquete distribuible** (`sdist`, `wheel`) o del contenedor Docker.
+
+4.  **Firma digital y checksum** para auditoría.
+
+5.   **Publicación en repositorio interno o PyPI** sólo tras aprobación humana.
+
+**Ejemplo de pasos automatizados (extracto):**
+
+``` yaml
+- name: Semantic release
+  uses: cycjimmy/semantic-release-action@v4
+  with:
+    semantic_version: 18
+    extra_plugins: |
+      @semantic-release/changelog
+      @semantic-release/github
+      @semantic-release/git
+```
+
+Los metadatos de cada release incluyen:
+
+-   commit SHA y autoría,
+
+-    número de PR y issue relacionados,
+
+-   versión de los artefactos de documentación y SBOM generados.
+
+## Auditoría y SBOM
+
+La transparencia y la trazabilidad técnica culminan en la **auditoría de dependencias y artefactos**.\
+HILL-SE integra esta práctica como parte del control de calidad continuo.
+
+### Software Bill of Materials (SBOM)
+
+Un **SBOM** (Software Bill of Materials) es un inventario completo y firmado de las dependencias del proyecto, sus versiones y sus orígenes.\
+Permite:
+
+-    detectar vulnerabilidades conocidas (CVE),
+
+-    cumplir requisitos regulatorios,
+
+-   reproducir entornos de compilación,
+
+-   y facilitar auditorías externas.
+
+**Generación de SBOM:**
+
+``` bash
+pip install cyclonedx-bom
+cyclonedx-py -r -o sbom.xml
+```
+
+El archivo `sbom.xml` o `sbom.json` se publica como artefacto del pipeline y se versiona junto con la release.
+
+### Auditoría técnica y trazabilidad
+
+Cada release debe incluir:
+
+-    **SBOM actualizado**.
+
+-   **Reportes de seguridad (`bandit`, `pip-audit`)**.
+
+-    **Informe de cobertura y calidad (SonarQube o cobertura XML).**
+
+-    **Enlaces a ADRs y PRs aprobadas.**
+
+Estos artefactos conforman el **dossier de release**, que se conserva en el repositorio interno o en la herramienta de gestión documental de la organización.
+
+## Conclusión
+
+El ciclo de vida en HILL-SE combina automatización rigurosa con control humano deliberado.\
+El pipeline CI/CD, los quality gates y el SBOM garantizan que **cada versión sea verificable, reproducible y auditable**, mientras que el ingeniero responsable mantiene la autoridad técnica final sobre la entrega.
+
+El resultado es un proceso de desarrollo **confiable, medible y conforme a estándares de ingeniería de software profesional**, preparado para auditorías y para la evolución continua del sistema.

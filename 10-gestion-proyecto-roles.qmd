@@ -1,0 +1,129 @@
+# Gestión de proyecto y roles
+
+La gestión de proyectos en HILL-SE establece la estructura organizativa y los mecanismos de coordinación entre las personas y los modelos de lenguaje.  
+Su propósito es asegurar que el trabajo asistido por IA se mantenga **dentro de un marco de responsabilidad, calidad y gobernanza técnica**, donde cada entrega sea verificable, trazable y éticamente supervisada.
+
+---
+
+## DoR/DoD adaptados a HILL-SE
+
+En HILL-SE las definiciones clásicas de *Definition of Ready (DoR)* y *Definition of Done (DoD)* se amplían para incorporar los artefactos generativos y los criterios de control humano.
+
+### Definition of Ready (DoR)
+
+Una tarea o historia de usuario está **lista para comenzar** cuando:
+
+| Criterio | Descripción |
+|:----------|:-------------|
+| **Requisitos claros** | Historias y criterios de aceptación documentados (formato Gherkin). |
+| **Diseño inicial disponible** | Diagrama UML preliminar y ADR en borrador. |
+| **Prompts definidos** | Contexto y propósito de los prompts listos para revisión. |
+| **Pruebas planificadas** | Esquema de validación inicial o escenarios de test. |
+| **Revisión técnica humana** | Validación de coherencia por parte del Tech Lead. |
+
+### Definition of Done (DoD)
+
+Una tarea o historia se considera **completada** cuando:
+
+| Criterio | Descripción |
+|:----------|:-------------|
+| **Código y tests verificados** | Todos los tests pasan en CI/CD con cobertura ≥ 90 %. |
+| **Calidad técnica** | Sin errores de estilo (flake8), tipado (mypy) o seguridad (bandit, pip-audit). |
+| **Documentación actualizada** | Docstrings, UML, ADR y changelog revisados. |
+| **Trazabilidad completa** | PR referenciada a requisitos, tests y ADRs. |
+| **Aprobación humana** | Validación final del Tech Lead o QA. |
+
+---
+
+## Roles humanos
+
+HILL-SE mantiene una jerarquía de responsabilidades inspirada en metodologías ágiles, adaptada a un contexto híbrido humano-IA.  
+Cada rol conserva autoridad sobre las decisiones técnicas, éticas y de validación.
+
+### Tech Lead
+- Responsable global del cumplimiento metodológico HILL-SE.  
+- Supervisa los artefactos, los prompts y la coherencia del ciclo *Spec → Tests → Code*.  
+- Autoriza merges y releases.  
+- Custodia los indicadores de calidad y madurez del proyecto.
+
+### Developer
+- Implementa código, tests y documentación asistido por LLMs.  
+- Aplica pre-commit, linters y tipado antes de cada PR.  
+- Registra los prompts utilizados y los vincula con los commits.  
+- Participa en la revisión cruzada de código.
+
+### QA Engineer
+- Diseña y ejecuta planes de validación funcional y no funcional.  
+- Supervisa la cobertura, seguridad y consistencia de resultados.  
+- Asegura la trazabilidad entre requisitos, código y pipelines.  
+- Reporta métricas de calidad continua.
+
+### Architect
+- Define la estructura modular del sistema y los patrones de diseño.  
+- Garantiza la alineación entre UML, ADRs y decisiones de infraestructura.  
+- Evalúa la mantenibilidad del código generado o sugerido por LLMs.
+
+### Product Owner
+- Representa los objetivos de negocio y prioriza historias de usuario.  
+- Valida la funcionalidad entregada respecto a los criterios de aceptación.  
+- Coordina comunicación con stakeholders y define backlog estratégico.
+
+---
+
+## Roles del LLM
+
+Los modelos de lenguaje desempeñan **funciones delimitadas**, siempre bajo supervisión humana y con trazabilidad de prompts, entradas y resultados.
+
+### Asistente
+- Refina historias de usuario y criterios de aceptación.  
+- Propone estructuras de requisitos y escenarios de validación.  
+- Identifica dependencias o supuestos implícitos.
+
+### Redactor
+- Genera documentación técnica y funcional (docstrings, ADRs, README).  
+- Traduce decisiones arquitectónicas a formatos normalizados.  
+- Mantiene coherencia terminológica entre módulos y documentos.
+
+### Refactor
+- Sugiere mejoras de legibilidad, eficiencia o modularidad.  
+- Nunca modifica directamente el código sin revisión humana.  
+- Propone migraciones de patrón o limpieza de dependencias.
+
+### Test Advisor
+- Genera o amplía suites de prueba (unitarias, integración, property-based).  
+- Detecta posibles casos límite y evalúa cobertura.  
+- Colabora con el QA en el diseño de validaciones automatizadas.
+
+Cada rol del LLM se activa mediante **prompts controlados**, registrados en `prompts/` con propósito, versión y resultado esperado.  
+El Tech Lead aprueba qué prompts se incorporan al flujo oficial del proyecto.
+
+---
+
+## Gobernanza y métricas de madurez
+
+El marco HILL-SE incluye un sistema de **métricas de madurez** que evalúa el grado de integración disciplinada entre humanos, LLMs y automatización.
+
+### Dimensiones de madurez
+
+| Dimensión | Descripción | Indicadores |
+|:-----------|:-------------|:-------------|
+| **Control técnico** | Cumplimiento de quality gates y CI/CD. | Ratio de builds exitosos, cobertura, vulnerabilidades. |
+| **Gobernanza documental** | Coherencia entre requisitos, ADRs, UML y código. | % de artefactos trazables, ADRs actualizados. |
+| **Supervisión humana** | Participación efectiva en revisión y aprobación. | % de PR revisadas, ratio de prompts aprobados. |
+
+### Escala HILL-SE
+
+| Nivel | Descripción | Características |
+|:------|:-------------|:----------------|
+| **Nivel 1 – Inicial** | Uso puntual de LLMs sin control formal. | Sin trazabilidad ni CI/CD. |
+| **Nivel 2 – Controlado** | LLMs integrados con revisión humana sistemática. | Prompts versionados, calidad básica asegurada. |
+| **Nivel 3 – Integrado** | Flujo HILL-SE completo con validaciones automáticas. | Trazabilidad y CI/CD activos. |
+| **Nivel 4 – Maduro** | Gobernanza total y auditoría continua. | Métricas, SBOM y revisión ética incorporadas. |
+
+---
+
+## Conclusión
+
+La gestión de proyectos en HILL-SE equilibra automatización y control experto.  
+Los roles humanos dirigen y validan; los roles del LLM amplifican la productividad y la documentación.  
+La gobernanza y las métricas de madurez aseguran que **la colaboración híbrida produzca software de alta calidad, trazable y éticamente responsable** dentro de un marco de ingeniería verificable.

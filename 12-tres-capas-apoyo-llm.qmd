@@ -1,0 +1,134 @@
+# Tres capas de apoyo con LLMs
+
+HILL-SE concibe la interacción con modelos de lenguaje no como una única herramienta, sino como un **ecosistema de apoyo en tres capas complementarias**, que operan de forma coordinada dentro del flujo de trabajo de ingeniería.\
+Cada capa aporta un tipo distinto de asistencia, con niveles progresivos de autonomía, integración y especialización.
+
+El principio general se resume en una idea clave:\
+\> **los LLMs no sustituyen al ingeniero, amplían su capacidad cognitiva dentro de un marco verificable.**
+
+------------------------------------------------------------------------
+
+## Capa 1 — ChatGPT personalizado: *HILL-SE Coach*
+
+### Propósito
+
+El **HILL-SE Coach** es un modelo ChatGPT personalizado que actúa como **mentor metodológico y técnico** durante todo el ciclo de vida del proyecto.\
+Su función no es escribir código directamente, sino **guiar, revisar y estandarizar** el uso de la metodología.
+
+### Funciones principales
+
+-   **Acompañamiento metodológico:** explica los pasos del ciclo HILL-SE, revisa artefactos y propone mejoras de trazabilidad.\
+-   **Generación de plantillas:** crea esqueletos de ADRs, diagramas UML, prompts o PR checklists.\
+-   **Revisión conceptual:** analiza la coherencia entre requisitos, diseño, implementación y validación.\
+-   **Auditoría textual:** verifica la consistencia en la documentación técnica y detecta omisiones o ambigüedades.
+
+### Integración práctica
+
+El HILL-SE Coach se utiliza directamente desde el entorno de trabajo del ingeniero (VSCode, navegador o entorno corporativo de ChatGPT Enterprise) y accede a: - la **base documental del proyecto** (prompts, ADRs, UML, PRs), - los **repositorios Git** o snapshots de código, - y los **registros de interacción anteriores** (contexto de proyecto).
+
+El Coach puede ofrecer recomendaciones en lenguaje natural, pero toda acción técnica derivada (código, configuración, cambio estructural) debe pasar por la revisión humana y el pipeline CI/CD.
+
+------------------------------------------------------------------------
+
+## Capa 2 — GitHub Copilot en VSCode
+
+### Propósito
+
+La segunda capa se centra en **asistencia inmediata dentro del entorno de desarrollo**, mediante GitHub Copilot o herramientas equivalentes de autocompletado basadas en LLM.
+
+Mientras el *HILL-SE Coach* actúa a nivel de **metodología**, Copilot actúa a nivel de **productividad micro**, ofreciendo ayuda contextual durante la edición de código, documentación o tests.
+
+### Usos recomendados
+
+| Área                         | Ejemplo de uso                                                          | Validación                               |
+|:-----------------|:------------------------------|:----------------------|
+| **Boilerplate y plantillas** | Generar clases o funciones estándar (ej. repositorios, DTOs, fixtures). | Revisión automática mediante pre-commit. |
+| **Docstrings y ejemplos**    | Sugerir descripciones coherentes con la firma de la función.            | Validación `pydocstyle` y `doctest`.     |
+| **Tests complementarios**    | Proponer casos unitarios adicionales o inputs alternativos.             | Verificación por `pytest` y QA.          |
+| **Refactorización leve**     | Simplificar bucles, comprensiones o estructuras repetitivas.            | Aprobación humana obligatoria.           |
+
+### Limitaciones y control
+
+Copilot **no debe**: - modificar estructuras de arquitectura sin ADR aprobado,\
+- alterar lógica crítica o algoritmos numéricos sin validación,\
+- insertar dependencias no documentadas,\
+- generar código fuera del estándar de estilo (PEP 8, tipado estricto).
+
+El uso de Copilot debe estar acompañado de: - revisión humana (`Pull Request Review`),\
+- ejecución de quality gates locales (`pre-commit`, `pytest`, `mypy`),\
+- y trazabilidad en los commits indicando *"Generado/Refactorizado con Copilot bajo supervisión."*
+
+------------------------------------------------------------------------
+
+## Capa 3 — Agentes especializados
+
+### Propósito
+
+La tercera capa introduce **agentes LLM especializados** que ejecutan tareas técnicas concretas dentro del flujo HILL-SE.\
+A diferencia de Copilot (nivel micro) o del Coach (nivel estratégico), estos agentes trabajan sobre **artefactos intermedios**: UML, ADRs, tests, prompts, métricas de CI/CD.
+
+Cada agente se configura con un contexto acotado y un conjunto de herramientas o APIs específicas (por ejemplo, acceso a ficheros, diagramadores, linters o analizadores).
+
+### Ejemplos de agentes
+
+| Agente             | Función principal                                                          | Entradas                                    | Salidas                            |
+|:----------------|:----------------------|:----------------|:----------------|
+| **UML Drafter**    | Genera o actualiza diagramas UML en formato Mermaid o PlantUML.            | Descripciones de clases o módulos.          | `uml/*.mmd`, `uml/*.puml`.         |
+| **ADR Maker**      | Redacta y versiona Architecture Decision Records según plantillas HILL-SE. | Contexto técnico o justificación de cambio. | `adr/ADR-XXX.md`.                  |
+| **Test Engineer**  | Propone tests unitarios, de integración y property-based.                  | Historias de usuario + AC.                  | `tests/*.py` listos para revisión. |
+| **Prompt Curator** | Normaliza y versiona prompts usados en el proyecto.                        | Conversaciones, objetivos, restricciones.   | `prompts/*.md`.                    |
+| **Code Reviewer**  | Evalúa fragmentos de código frente a los criterios HILL-SE.                | Código fuente y métricas de linting.        | Informe en `reports/review_*.md`.  |
+
+Estos agentes pueden integrarse en pipelines o ejecutarse bajo demanda, siempre en **modo asistido**, sin permisos de escritura directa en ramas principales.
+
+### Integración con el flujo HILL-SE
+
+```{mermaid}
+flowchart TD
+A[Ingeniero Humano] --> B[HILL-SE Coach]
+B --> C[Copilot en VSCode]
+C --> D[Agentes Especializados]
+D --> E[Repositorio Git / CI-CD]
+E --> A
+```
+
+El flujo muestra cómo las tres capas forman un **circuito de colaboración supervisado**:
+
+1.   El Coach guía y documenta.
+
+2.   Copilot sugiere y acelera.
+
+3.   Los Agentes generan artefactos técnicos.
+
+4.   El ingeniero valida y aprueba.
+
+## Gobernanza y trazabilidad
+
+Todas las interacciones con LLMs deben ser **trazables y auditable**:
+
+-   Los prompts y salidas relevantes se almacenan en `prompts/` con metadatos.
+
+-    Las modificaciones derivadas se registran en PRs con referencias cruzadas.
+
+-   Cada agente o capa debe tener **métricas de precisión y utilidad**, revisadas por el Tech Lead.
+
+### Indicadores de control
+
+| Métrica                                     | Descripción                                                             | Objetivo                      |
+|---------------------------------------------|-------------------------------------------------------------------------|-------------------------------|
+| **% de artefactos generados bajo revisión** | Proporción de resultados revisados manualmente.                         | 100 %                         |
+| **Errores detectados post-fusión**          | Bugs o incoherencias surgidos tras integración de artefactos generados. | ≤ 2 %                         |
+| **Tiempo medio de revisión humana**         | Duración media entre generación y aprobación.                           | ≤ 24 h                        |
+| **Número de prompts validados activos**     | Prompts aprobados por Tech Lead.                                        | Métrica de madurez documental |
+
+## Conclusión
+
+Las tres capas de apoyo con LLMs estructuran la colaboración entre el ingeniero y la inteligencia generativa:
+
+-   **El HILL-SE Coach** ofrece orientación metodológica y coherencia.
+
+-   **Copilot** incrementa la productividad local bajo normas controladas.
+
+-   **Los agentes especializados** producen artefactos técnicos trazables.
+
+Este ecosistema convierte al ingeniero en el **centro de un sistema inteligente distribuido**, donde la automatización está al servicio de la calidad, la gobernanza y la mejora continua.

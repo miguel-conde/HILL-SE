@@ -1,0 +1,184 @@
+# Documentación y trazabilidad
+
+En HILL-SE, la documentación y la trazabilidad no son productos secundarios del desarrollo, sino **pilares esenciales de la calidad y la gobernanza técnica**.\
+El marco metodológico exige que cada artefacto —desde los requisitos hasta el código final— esté enlazado mediante referencias explícitas y verificables.
+
+El objetivo no es generar más documentación, sino **mantener documentación viva, sincronizada y ejecutable**, capaz de reflejar en todo momento el estado real del sistema.
+
+------------------------------------------------------------------------
+
+## Docstrings ejecutables
+
+Los **docstrings** constituyen la primera capa de documentación en HILL-SE.\
+Actúan simultáneamente como: - descripción funcional,\
+- contrato de interfaz,\
+- y fuente primaria de generación automática de documentación.
+
+### Requisitos de estilo y contenido
+
+1.  **Formato estandarizado:** se recomienda el estilo Google o NumPy.\
+2.  **Ejemplos ejecutables:** deben poder verificarse mediante `doctest` o integrarse en los tests unitarios.\
+3.  **Trazabilidad:** el docstring debe referenciar la historia de usuario o el criterio de aceptación que satisface.\
+4.  **Concordancia:** cualquier modificación en el código requiere la actualización inmediata del docstring.
+
+**Ejemplo:**
+
+``` python
+def calcular_beneficio_neto(ruta: list[int], beneficios: list[float], penalizaciones: list[float]) -> float:
+    """
+    Calcula el beneficio neto de una ruta en el problema PCOP.
+
+    Referencias
+    ------------
+    Historia: US-001
+    Criterio de aceptación: AC-001.2
+
+    Parameters
+    ----------
+    ruta : list[int]
+        Secuencia de nodos visitados.
+    beneficios : list[float]
+        Beneficio de cada nodo.
+    penalizaciones : list[float]
+        Penalización por no visitar un nodo.
+
+    Returns
+    -------
+    float
+        Beneficio total menos penalizaciones aplicables.
+
+    Examples
+    --------
+    >>> calcular_beneficio_neto([0, 2], [10, 5, 8], [0, 3, 1])
+    15.0
+    """
+    visitados = set(ruta)
+    total = sum(beneficios[i] for i in visitados)
+    penal = sum(penalizaciones[i] for i in range(len(penalizaciones)) if i not in visitados)
+    return total - penal
+```
+
+Cada docstring contiene referencias trazables (por ejemplo, `US-001` o `AC-001.2`) que enlazan con las historias de usuario registradas en `docs/user_stories/`.
+
+## Generación automática de documentación
+
+La segunda capa documental se genera automáticamente a partir del código y sus docstrings.\
+HILL-SE promueve el uso de herramientas que integran documentación y validación:
+
+| Herramienta | Propósito                                                      | Salida recomendada               |
+|-------------------|-----------------------------------|-------------------|
+| **Sphinx**  | Generación de documentación técnica desde docstrings.          | Documentación de API y módulos.  |
+| **MkDocs**  | Publicación de documentación ligera para proyectos web.        | Documentación navegable en HTML. |
+| **Quarto**  | Integración de texto técnico, código y resultados ejecutables. | Manuales y reportes técnicos.    |
+
+### Práctica recomendada
+
+1.  Los docstrings se validan con `pydocstyle` y `doctest`.
+
+2.  Sphinx o MkDocs generan la documentación automáticamente en cada pipeline.
+
+3.  La documentación publicada referencia la versión del código (`git commit` o `semver`).
+
+4.  Los diagramas UML y ADRs se actualizan y renderizan junto con la documentación técnica.
+
+**Ejemplo de pipeline para Sphinx (extracto de GitHub Actions):**
+
+```yaml
+- name: Build Sphinx documentation
+  run: |
+    sphinx-build -b html docs/source docs/build
+- name: Publish docs artifact
+  uses: actions/upload-artifact@v4
+  with:
+    name: documentation
+    path: docs/build/
+```
+
+De este modo, la documentación técnica se actualiza en cada iteración sin intervención manual, manteniendo sincronía entre código, diseño y especificaciones.
+
+## Enlace entre requisitos, código, tests y PRs
+
+La trazabilidad es el mecanismo que permite **seguir el recorrido de un requisito a través del sistema**.\
+HILL-SE implementa esta trazabilidad de forma sistemática mediante identificadores únicos y convenciones de nomenclatura coherentes.
+
+### Estructura de trazabilidad
+
+| Elemento               | Identificador                      | Ubicación                         | Referencia cruzada                   |
+|------------------|------------------|------------------|-------------------|
+| Historia de usuario    | `US-XXX`                           | `docs/user_stories/`              | Referenciada en tests y docstrings   |
+| Criterio de aceptación | `AC-XXX.Y`                         | Dentro de cada historia o Gherkin | Referenciado en tests                |
+| Test asociado          | `test_[funcionalidad]_[condicion]` | `tests/`                          | Referencia al AC correspondiente     |
+| Código                 | `src/...`                          | Módulos y clases                  | Docstrings con referencia `US-XXX`   |
+| ADR                    | `ADR-XXX`                          | `adr/`                            | Referencia cruzada a decisiones y PR |
+| Pull Request           | `PR-XXX`                           | Repositorio remoto                | Enlaza commits, ADR y historias      |
+
+### Ejemplo de trazabilidad completa
+
+1.  **Historia de usuario:** `US-001 – Calcular beneficio neto`.
+
+2.  **Criterio de aceptación:** `AC-001.2 – Incluir penalizaciones por nodos no visitados`.
+
+3.  **Test:** `test_beneficio_con_penalizacion()` (referencia a `AC-001.2`).
+
+4.  **Código:** función `calcular_beneficio_neto()` (docstring con `US-001`).
+
+5.  **PR:** `PR-045` con descripción “Implementación US-001 / AC-001.2”.
+
+6.  **ADR:** `ADR-003` documenta la decisión de aplicar penalizaciones lineales.
+
+Esta relación jerárquica se representa en el pipeline mediante etiquetas y comentarios automáticos de los LLMs o herramientas de integración, pero la **responsabilidad final de coherencia recae en el ingeniero humano**.
+
+## Ejercicio práctico: trazabilidad de una historia
+
+**Objetivo:** seguir el recorrido de una historia de usuario a través de todos los artefactos HILL-SE.
+
+**Historia de usuario (US-010):**
+
+> Como planificador logístico,\
+> quiero obtener una ruta con máximo beneficio bajo un presupuesto de distancia,\
+> para optimizar la productividad de las entregas.
+
+**Criterios de aceptación (AC-010.1 y AC-010.2):**
+
+```gherkin
+Scenario: Calcular ruta factible con beneficio máximo
+  Given un conjunto de ubicaciones con beneficios y penalizaciones
+  And una matriz de distancias y un presupuesto de 120 km
+  When ejecuto el solver predeterminado
+  Then obtengo una ruta factible
+  And el beneficio neto es máximo posible
+```
+
+**Estructura del proyecto:**
+
+| Artefacto               | Identificador             | Archivo                                         |
+|------------------|--------------------|----------------------------------|
+| Historia de usuario     | US-010                    | `docs/user_stories/pcop_ruta_maxima.md`         |
+| Test de aceptación      | AC-010.1                  | `tests/e2e/test_pcop_ruta_maxima.py`            |
+| Implementación          | Función `resolver_pcop()` | `src/pcop/solver.py`                            |
+| Docstring               | Referencia a US-010       | Dentro de `resolver_pcop()`                     |
+| ADR de patrón de diseño | ADR-004                   | `adr/004_strategy_pattern.md`                   |
+| PR asociado             | PR-078                    | GitHub → Merge “Implementar solver básico PCOP” |
+
+La trazabilidad se representa así:
+
+``` {mermaid}
+graph TD
+US["US-010 Historia de usuario"]
+AC["AC-010.1 / AC-010.2 Criterios de aceptación"]
+TEST["test_pcop_ruta_maxima.py"]
+CODE["resolver_pcop()"]
+ADR["ADR-004"]
+PR["PR-078"]
+
+US --> AC --> TEST --> CODE --> ADR --> PR
+PR --> US
+```
+
+Este flujo demuestra cómo cada elemento del proyecto HILL-SE forma parte de una red coherente y auditable, donde la evolución del software puede rastrearse desde la necesidad original hasta la entrega final.
+
+## Conclusión
+
+La documentación y la trazabilidad en HILL-SE no son tareas accesorias, sino el mecanismo que **garantiza la integridad epistemológica del sistema**: todo conocimiento generado (requisitos, diseño, código, validación) permanece conectado y verificable.
+
+El uso disciplinado de docstrings ejecutables, documentación automatizada y trazabilidad integral convierte cada entrega en un artefacto técnico reproducible, auditable y alineado con los principios del marco HILL-SE.
