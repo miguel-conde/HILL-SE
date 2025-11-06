@@ -1,0 +1,196 @@
+# Configuración y prácticas seguras
+
+La seguridad, la privacidad y la conformidad regulatoria son pilares esenciales de HILL-SE.\
+El uso de modelos de lenguaje dentro de entornos de ingeniería exige una **gestión rigurosa de secretos, licencias y datos sensibles**, así como políticas claras sobre la trazabilidad y el almacenamiento de la información intercambiada con los LLMs.
+
+El presente capítulo describe las **buenas prácticas y mecanismos de control** que deben implantarse para mantener la integridad técnica, legal y ética del sistema.
+
+------------------------------------------------------------------------
+
+## Control de secretos y licencias
+
+### Principios generales
+
+1.  **Nunca exponer claves o credenciales** en código fuente, notebooks, prompts o repositorios.\
+2.  **Centralizar la configuración** mediante variables de entorno o gestores de secretos corporativos.\
+3.  **Restringir el ámbito de cada clave** al servicio mínimo necesario.\
+4.  **Auditar el uso y renovación periódica** de tokens y certificados.\
+5.  **Asegurar el cumplimiento de licencias** en dependencias, datasets y modelos.
+
+### Prácticas recomendadas
+
+-   **Gestión de secretos:**\
+    Utilizar herramientas como **GitHub Secrets**, **Azure Key Vault**, **HashiCorp Vault** o **AWS Secrets Manager**.\
+    Ningún secreto debe almacenarse en texto plano.
+
+    ``` bash
+    export OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+    ```
+
+```{=html}
+<!-- -->
+```
+-   **Variables de entorno (.env):**\
+    Mantenerlas fuera del control de versiones mediante `.gitignore`:
+
+    ``` bash
+    # .gitignore
+    .env
+    *.pem
+    *.key
+    ```
+
+-    **Escaneo automático de repositorios:**\
+    Integrar herramientas de detección como:
+
+    -    `trufflehog`
+
+    -    `gitleaks`
+
+    -    `detect-secrets`
+
+    Ejemplo de integración con pre-commit:
+
+    ``` yaml
+    - repo: https://github.com/zricethezav/gitleaks
+      rev: v8.17.0
+      hooks:
+        - id: gitleaks
+    ```
+
+-    **Cumplimiento de licencias:**\
+    Revisar dependencias con `pip-licenses` o `licensecheck`:
+
+    ``` bash
+    pip install pip-licenses
+    pip-licenses --format=markdown > reports/licenses.md
+    ```
+
+    Toda dependencia de terceros debe cumplir una licencia **compatible con uso comercial o interno**, conforme a las políticas de la organización.
+
+## Prompts versionados
+
+En HILL-SE los prompts constituyen **artefactos técnicos trazables**, no simples mensajes efímeros.\
+Su gestión controlada permite reproducir resultados, auditar decisiones y mejorar la calidad de las generaciones futuras.
+
+### Estructura recomendada
+
+Los prompts se almacenan en el directorio `prompts/` con el siguiente formato:
+
+```         
+prompts/
+  ├── 001_requirements_refiner.md
+  ├── 002_uml_drafter.md
+  ├── 003_test_advisor.md
+  └── README.md
+```
+
+Cada prompt debe contener:
+
+``` markdown
+# Prompt: 002_uml_drafter
+Versión: 1.2
+Propósito: Generar diagramas UML coherentes con el módulo actual.
+Entradas: Descripción de clases, relaciones, contexto de proyecto.
+Salidas: Código Mermaid o PlantUML válido.
+Aprobado por: Tech Lead (fecha)
+```
+
+### Buenas prácticas
+
+-    Registrar **todas las versiones significativas** de prompts.
+
+-   Mantener un **control de cambios** con commits descriptivos.
+
+-   Incluir referencias cruzadas a ADRs, PRs o requisitos asociados.
+
+-   Evitar incluir ejemplos que contengan datos de cliente o confidenciales.
+
+-    Firmar digitalmente los prompts aprobados para uso productivo.
+
+### Validación automática
+
+Integrar verificaciones simples en pre-commit:
+
+``` yaml
+- repo: local
+  hooks:
+    - id: validate-prompts
+      name: Validate prompt metadata
+      entry: python scripts/validate_prompts.py
+      language: python
+      files: ^prompts/.*\.md$
+```
+
+Esto asegura que cada prompt contenga los metadatos requeridos antes de aceptar su inclusión en el repositorio.
+
+## Privacidad, compliance y límites de uso de LLMs
+
+### Principios éticos y regulatorios
+
+1.   **Transparencia:**\
+    Toda interacción con un LLM debe ser trazable, reproducible y auditable.\
+    El origen de los contenidos generados debe quedar documentado.
+
+2.   **Minimización de datos:**\
+    No se deben enviar datos personales, confidenciales ni de clientes a modelos externos.\
+    Si el modelo se ejecuta localmente, se aplican los mismos principios de protección.
+
+3.  **Cumplimiento normativo:**\
+    HILL-SE debe alinearse con:
+
+    -    Reglamento General de Protección de Datos (GDPR)
+
+    -    ISO/IEC 27001 (seguridad de la información)
+
+    -   NIST AI Risk Management Framework
+
+    -   Políticas internas de la organización.
+
+4.   **Propiedad intelectual:**\
+    Los outputs generados por LLMs deben revisarse y documentarse como **co-creación supervisada**, garantizando la autoría humana y la cesión de derechos conforme al marco contractual del proyecto.
+
+5.   **Límites de uso:**\
+    El LLM nunca debe utilizarse para:
+
+    -    decisiones automáticas sin intervención humana,
+
+    -   evaluación de rendimiento del personal,
+
+    -   generación de contenido sensible o discriminatorio,
+
+    -    extracción o reproducción de material protegido.
+
+### Políticas operativas
+
+-   Mantener un **catálogo de modelos autorizados** (ChatGPT Enterprise, Copilot, modelos locales, etc.).
+
+-    Registrar los **logs de interacción relevantes** y su periodo de retención.
+
+-    Aplicar filtros automáticos de contenido (PII, credenciales, código sensible).
+
+-    Someter los cambios de configuración a aprobación del Tech Lead y del área de seguridad.
+
+### Evaluación de riesgo
+
+HILL-SE recomienda realizar una **evaluación periódica del riesgo asociado a LLMs**, con criterios como:
+
+| Dimensión            | Riesgo potencial                                 | Mitigación                                     |
+|----------------------|--------------------------------------------------|------------------------------------------------|
+| **Confidencialidad** | Exposición de datos sensibles en prompts.        | Anonimización, sandbox local, control de logs. |
+| **Integridad**       | Generaciones inexactas o no verificadas.         | Revisión humana obligatoria, CI/CD con tests.  |
+| **Disponibilidad**   | Dependencia excesiva de servicios externos.      | Modelos locales o redundancia de proveedores.  |
+| **Legalidad**        | Infracción de licencias o uso indebido de datos. | Auditoría legal y revisión de compliance.      |
+
+## Conclusión
+
+La seguridad en HILL-SE no se limita al código: abarca **todo el ecosistema de generación, documentación y colaboración con LLMs**.\
+El control de secretos, la trazabilidad de prompts y el cumplimiento de normas de privacidad y propiedad intelectual son condiciones indispensables para operar en entornos profesionales y regulados.
+
+Un proyecto HILL-SE se considera seguro cuando:
+
+-    cada componente cumple principios de **mínima exposición y trazabilidad**,
+
+-    todas las interacciones con LLMs son **controladas, registradas y auditables**,
+
+-    y la **responsabilidad humana** se mantiene sobre el conjunto del sistema.

@@ -1,0 +1,231 @@
+# Caso 1 — Librería de optimización (PCOP)
+
+Este primer caso práctico muestra la aplicación completa del marco HILL-SE al desarrollo de una **librería Python para resolver el “Prize-Collecting Orienteering Problem (PCOP)”**, un problema clásico de optimización combinatoria.\
+El objetivo es demostrar cómo las fases del ciclo HILL-SE —definición, diseño, implementación, validación y release— se aplican a un proyecto real, desde el concepto hasta un MVP funcional.
+
+------------------------------------------------------------------------
+
+## Requisitos
+
+### Descripción general
+
+El **PCOP** busca encontrar una ruta que maximice el beneficio neto obtenido al visitar un conjunto de ubicaciones, considerando beneficios y penalizaciones, y sin exceder un presupuesto máximo de distancia o tiempo.
+
+### Historia de usuario principal
+
+> **Como** planificador logístico,\
+> **quiero** calcular una ruta que maximice el beneficio neto bajo una restricción de distancia,\
+> **para** optimizar la eficiencia de mis entregas y aumentar el retorno operativo.
+
+### Criterios de aceptación (AC)
+
+``` gherkin
+Scenario: Generar una ruta óptima bajo presupuesto máximo
+  Given una lista de ubicaciones con beneficios y penalizaciones
+  And una matriz de distancias válida
+  And un presupuesto máximo de recorrido
+  When ejecuto el solver del problema
+  Then obtengo una ruta que maximiza el beneficio neto
+  And la distancia total no supera el presupuesto
+```
+
+### Requisitos no funcionales
+
+| Categoría             | Descripción                                      | Umbral         |
+|-----------------------|--------------------------------------------------|----------------|
+| **Rendimiento**       | Resolver instancias de 50 nodos en \< 10 s.      | Tiempo ≤ 10 s  |
+| **Calidad de código** | Cumplir PEP 8 y pasar todos los linters y tests. | 100 % correcto |
+| **Cobertura**         | Cobertura mínima en tests de dominio.            | ≥ 90 %         |
+| **Reproducibilidad**  | Configuración mediante DevContainer.             | Obligatoria    |
+
+### Especificaciones iniciales (DoR)
+
+-   Requisitos funcionales y no funcionales definidos.
+
+-    Diseño UML preliminar aprobado.
+
+-    ADR inicial sobre estructura de librería.
+
+-    Prompts iniciales disponibles en `prompts/pcop/`.
+
+-    Pipeline CI/CD configurado con flake8, pytest, mypy, bandit y coverage.
+
+## Diseño
+
+### ADR-001 — Arquitectura modular de solver
+
+``` makefile
+Date: 2025-01-15
+Status: Accepted
+
+Contexto:
+La librería debe permitir incorporar distintos algoritmos de resolución (Greedy, LNS, GRASP)
+sin alterar la interfaz del solver principal.
+
+Decisión:
+Adoptar una arquitectura basada en el patrón Strategy.
+
+Consecuencias:
+- Facilita la extensión con nuevos algoritmos.
+- Simplifica los tests unitarios por algoritmo.
+- Requiere clases base e interfaces coherentes.
+```
+
+### Diagrama UML (versión 1)
+
+```{mermaid}
+classDiagram
+    class ProblemInstance {
+        +nodes: list
+        +distances: list[list]
+        +benefits: list
+        +penalties: list
+        +budget: float
+    }
+
+    class Solver {
+        <<interface>>
+        +solve(instance: ProblemInstance): Solution
+    }
+
+    class GreedySolver {
+        +solve(instance: ProblemInstance): Solution
+    }
+
+    class Solution {
+        +route: list
+        +objective_value: float
+        +is_feasible(): bool
+        +total_distance(): float
+    }
+
+    ProblemInstance --> Solver : input
+    Solver <|-- GreedySolver
+    Solver --> Solution : output
+```
+
+**Arquitectura elegida:**
+
+-   Capa de modelo: `ProblemInstance`, `Solution`.
+
+-   Capa de estrategia: `Solver` + implementaciones concretas.
+
+-   Capa de interfaz: funciones auxiliares para cargar datos, ejecutar y validar resultados.
+
+## Primeros tests
+
+### Test de factibilidad de solución
+
+``` python
+def test_solution_factible():
+    from pcop.models import Solution
+
+    s = Solution(
+        route=[0, 1, 2, 0],
+        distances=[[0, 10, 15], [10, 0, 20], [15, 20, 0]],
+        budget=50,
+        benefits=[10, 5, 8],
+        penalties=[0, 3, 1]
+    )
+    assert s.is_feasible()
+```
+
+### Test de beneficio neto
+
+``` python
+def test_beneficio_neto():
+    from pcop.utils import calcular_beneficio_neto
+    ruta = [0, 2]
+    beneficios = [10, 5, 8]
+    penalizaciones = [0, 3, 1]
+    assert calcular_beneficio_neto(ruta, beneficios, penalizaciones) == 15.0
+```
+
+### Test de integración del solver
+
+``` python
+def test_solver_greedy_basico():
+    from pcop.core import GreedySolver, ProblemInstance
+    instance = ProblemInstance(nodes=[0, 1, 2],
+                               distances=[[0,10,15],[10,0,20],[15,20,0]],
+                               benefits=[10,5,8],
+                               penalties=[0,3,1],
+                               budget=40)
+    solver = GreedySolver()
+    solution = solver.solve(instance)
+    assert solution.is_feasible()
+    assert solution.objective_value > 0
+```
+
+## Ciclo completo HILL-SE de un MVP
+
+El desarrollo del MVP sigue el flujo iterativo característico de HILL-SE.
+
+### 1. Definición
+
+-    El ingeniero redacta historias y criterios de aceptación.
+
+-    El LLM (rol *Asistente*) refina el lenguaje y propone casos límite.
+
+-   Los artefactos se almacenan en `docs/user_stories/`.
+
+### 2. Diseño
+
+-    El ingeniero define entidades y patrones.
+
+-    El LLM (rol *UML Drafter*) genera diagramas UML iniciales.
+
+-   Se crea y aprueba `ADR-001`.
+
+### 3. Implementación
+
+-   El LLM (rol *Refactor* y *Redactor*) genera las clases base con docstrings y tipado.
+
+-    Los desarrolladores completan la lógica y crean tests.
+
+-   Los linters y `pytest` se ejecutan en pre-commit.
+
+### 4. Verificación
+
+-    QA ejecuta los quality gates del pipeline.
+
+-    Los tests alcanzan cobertura del 95 %.
+
+-   Los informes de `flake8`, `mypy`, `bandit` y `pip-audit` resultan limpios.
+
+-    El Tech Lead aprueba la PR y la release `v0.1.0`.
+
+### 5. Release y trazabilidad
+
+-    Se genera la documentación automática con Sphinx.
+
+-   Se publica la versión en el repositorio PyPI interno.
+
+-   El SBOM y los reportes de seguridad se archivan en `reports/`.
+
+-   Se enlazan commits, ADRs, UML y PRs en la matriz de trazabilidad.
+
+## Resultados del MVP
+
+| Métrica              | Valor obtenido             | Umbral HILL-SE |
+|----------------------|----------------------------|----------------|
+| Cobertura de tests   | 96 %                       | ≥ 90 %         |
+| Tiempo de ejecución  | 7.8 s (instancia 50 nodos) | ≤ 10 s         |
+| Calidad Sonar        | A (sin vulnerabilidades)   | A              |
+| ADRs vigentes        | 1 (Strategy)               | \-             |
+| UML actualizado      | Sí                         | Obligatorio    |
+| Cumplimiento DoR/DoD | 100 %                      | 100 %          |
+
+El MVP de la librería PCOP demuestra que el flujo HILL-SE permite alcanzar rápidamente un producto funcional, bien documentado y validado, manteniendo control humano total sobre las decisiones técnicas y los resultados generativos.
+
+## Conclusión
+
+Este primer caso de uso ilustra el poder del enfoque HILL-SE aplicado a un proyecto de optimización:
+
+-   Los **LLMs aceleran la generación de artefactos** (UML, ADRs, tests, docstrings).
+
+-    l **ingeniero conserva la supervisión y validación** en todas las fases.
+
+-    El **pipeline CI/CD garantiza reproducibilidad, seguridad y trazabilidad**.
+
+El resultado es un MVP sólido, auditable y fácilmente extensible —una demostración práctica del paradigma *Human-in-the-Loop Software Engineering*.

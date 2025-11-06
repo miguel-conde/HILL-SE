@@ -1,0 +1,220 @@
+# Plantillas y checklists HILL-SE
+
+El marco HILL-SE se apoya en un conjunto de **plantillas estandarizadas** y **listas de verificación (checklists)** que garantizan trazabilidad, coherencia documental y control de calidad en todas las fases del ciclo de desarrollo.
+
+Este capítulo reúne los formatos base recomendados para proyectos HILL-SE, listos para integrarse en repositorios (`/templates/` o `/docs/`), así como ejemplos prácticos de su aplicación.
+
+------------------------------------------------------------------------
+
+## ADR Template
+
+Los **Architecture Decision Records (ADR)** documentan las decisiones técnicas clave y su justificación.\
+Cada ADR debe ser breve, versionado y revisado por el Tech Lead antes de su adopción.
+
+**Ubicación recomendada:** `adr/ADR-###-<slug>.md`
+
+**Plantilla oficial:**
+
+``` markdown
+# ADR-XXX — [Título descriptivo de la decisión]
+
+**Estado:** Propuesto | Aceptado | Rechazado | Obsoleto  
+**Fecha:** YYYY-MM-DD  
+**Autor:** [Nombre del autor / Revisor]
+
+## Contexto
+Describe el problema o necesidad que origina esta decisión.  
+Incluye restricciones, alternativas consideradas y motivación de cambio.
+
+## Decisión
+Expón la decisión adoptada de forma clara, técnica y concisa.
+
+## Consecuencias
+Detalla las implicaciones de la decisión: ventajas, riesgos, compatibilidad, deuda técnica.
+
+## Referencias
+- Issues, PRs o commits relacionados
+- Documentación técnica o normativa aplicable
+```
+
+**Ejemplo breve:**
+
+``` markdown
+# ADR-001 — Adopción del patrón Strategy en PCOP Solver
+
+**Estado:** Aceptado  
+**Fecha:** 2025-02-10  
+**Autor:** Tech Lead (M. Conde)
+
+## Contexto
+Necesitamos soportar múltiples heurísticas de optimización sin modificar la interfaz del solver principal.
+
+## Decisión
+Implementar el patrón Strategy para encapsular los algoritmos (Greedy, LNS, GRASP).
+
+## Consecuencias
++ Extensibilidad sin romper dependencias.
+– Incrementa la complejidad estructural inicial.
+
+## Referencias
+- UML v1.1 (`uml/pcop_solver.mmd`)
+- PR #14
+```
+
+## Pull Request Checklist (PR)
+
+Antes de fusionar una PR, el desarrollador y el revisor deben validar que cumple los **criterios técnicos, metodológicos y éticos** definidos por HILL-SE.
+
+**Ubicación recomendada:** `.github/pull_request_template.md`
+
+``` markdown
+# PR Checklist — HILL-SE
+
+## General
+- [ ] La PR tiene un título descriptivo y enlaza al issue o historia de usuario.
+- [ ] Se han actualizado los ADRs, UMLs y documentación correspondiente.
+- [ ] Se incluyen tests unitarios o de integración para la nueva funcionalidad.
+- [ ] Los resultados han sido revisados por un humano (principio Human-First).
+
+## Calidad técnica
+- [ ] Sin errores en linters (flake8 / eslint).
+- [ ] Tipado completo y correcto (mypy / TypeScript strict).
+- [ ] Tests pasan en CI y la cobertura ≥ 90 %.
+- [ ] Sin vulnerabilidades (bandit, pip-audit, npm audit).
+- [ ] Calidad Sonar ≥ A.
+
+## Seguridad y compliance
+- [ ] No se han expuesto secretos ni datos sensibles.
+- [ ] Los prompts, logs y datasets cumplen políticas de privacidad.
+- [ ] Se han seguido las directrices de ética y transparencia HILL-SE.
+
+## Revisión
+- [ ] La PR ha sido revisada por el Tech Lead o QA.
+- [ ] La revisión se ha documentado en el comentario final.
+```
+
+## Definition of Ready (DoR) y Definition of Done (DoD)
+
+HILL-SE adapta estas definiciones para incluir artefactos generativos y verificación humana obligatoria.
+
+### Definition of Ready (DoR)
+
+Una historia está lista para desarrollo cuando:
+
+| Criterio                                          | Verificación |
+|---------------------------------------------------|--------------|
+| Requisitos funcionales y no funcionales definidos | ✅           |
+| AC redactados en formato Gherkin                  | ✅           |
+| UML y ADR preliminares creados                    | ✅           |
+| Prompts iniciales documentados y aprobados        | ✅           |
+| Plan de tests definido                            | ✅           |
+| Validación del Tech Lead                          | ✅           |
+
+### Definition of Done (DoD)
+
+Una historia está completada cuando:
+
+| Criterio                                    | Verificación |
+|---------------------------------------------|--------------|
+| Todos los tests pasan y la cobertura ≥ 90 % | ✅           |
+| Linters, tipado y seguridad sin errores     | ✅           |
+| Docstrings, ADR, UML actualizados           | ✅           |
+| PR revisada y aprobada por humano           | ✅           |
+| Release generada con changelog y SBOM       | ✅           |
+
+## Prompt Templates
+
+Los prompts son artefactos versionados en `prompts/`, con metadatos de propósito, contexto y responsable.
+
+**Plantilla oficial (`prompts/prompt_template.md`):**
+
+``` markdown
+# Prompt Template — HILL-SE
+
+**ID:** 001  
+**Nombre:** [Nombre corto y descriptivo]  
+**Versión:** 1.0  
+**Propósito:** [Objetivo del prompt]  
+**Contexto:** [Qué información recibe y qué produce]  
+**Rol del LLM:** [Asistente | Redactor | Refactor | Test Advisor]  
+**Revisor humano:** [Nombre]  
+**Fecha aprobación:** YYYY-MM-DD  
+
+## Instrucción
+[Texto literal del prompt]
+
+## Ejemplo de uso
+### Input
+[Ejemplo de entrada de prueba]
+### Output esperado
+[Ejemplo resumido del resultado correcto]
+```
+
+**Ejemplo:**
+
+``` markdown
+# Prompt: UML Drafter
+**Versión:** 1.1  
+**Rol:** Asistente  
+**Propósito:** Generar diagrama UML inicial de clases a partir de la descripción textual del módulo.  
+**Revisor:** Tech Lead  
+**Fecha:** 2025-02-03
+
+## Instrucción
+Genera un diagrama UML en formato Mermaid según las clases, atributos y relaciones descritas.
+
+## Ejemplo
+### Input
+“Un módulo Solver con clases ProblemInstance, Solver y Solution.”
+### Output esperado
+Mermaid `classDiagram` con herencias y relaciones entre las tres clases.
+```
+
+## Ejemplos de UML y Acceptance Criteria (AC)
+
+### Ejemplo UML — Arquitectura modular (caso PCOP)
+
+```{mermaid}
+classDiagram
+    class ProblemInstance {
+        +nodes: list[int]
+        +distances: list[list[float]]
+        +benefits: list[float]
+        +penalties: list[float]
+        +budget: float
+    }
+
+    class Solver {
+        <<interface>>
+        +solve(instance: ProblemInstance): Solution
+    }
+
+    class GreedySolver {
+        +solve(instance: ProblemInstance): Solution
+    }
+
+    class Solution {
+        +route: list[int]
+        +objective_value: float
+    }
+
+    ProblemInstance --> Solver
+    Solver <|-- GreedySolver
+    Solver --> Solution
+```
+
+### Ejemplo AC — Criterios Gherkin
+
+``` gherkin
+Scenario: Resolver instancia PCOP válida
+  Given una lista de nodos, distancias y beneficios válidos
+  When ejecuto el solver Greedy
+  Then obtengo una ruta con beneficio total > 0
+  And la distancia no supera el presupuesto definido
+```
+
+## Conclusión
+
+Las plantillas y checklists HILL-SE son el **esqueleto documental del método**:\
+garantizan que cada artefacto, decisión y generación del LLM sea **verificable, trazable y aprobada por humanos**.\
+Su aplicación sistemática permite mantener la coherencia metodológica y asegurar la calidad de extremo a extremo en proyectos híbridos humano-IA.
