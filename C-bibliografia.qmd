@@ -1,0 +1,121 @@
+# Bibliografía y recursos
+
+El marco **HILL-SE** se fundamenta en estándares consolidados de ingeniería de software, metodologías ágiles, prácticas arquitectónicas modernas y en la investigación reciente sobre la aplicación de modelos de lenguaje a la programación asistida.\
+Este capítulo reúne las **principales fuentes metodológicas, publicaciones académicas y herramientas recomendadas** para aplicar y ampliar el conocimiento asociado al paradigma *Human-in-the-Loop Software Engineering*.
+
+------------------------------------------------------------------------
+
+## Referencias metodológicas
+
+### **SWEBOK — Software Engineering Body of Knowledge**
+
+El *Software Engineering Body of Knowledge* de la IEEE Computer Society constituye la referencia principal sobre los fundamentos de la ingeniería de software, cubriendo todas las áreas de conocimiento profesional [@ieee1012-2016].\
+Su enfoque sistemático sirve como base conceptual para la organización de los artefactos y fases del ciclo HILL-SE.
+
+> IEEE Computer Society. (2014). *Guide to the Software Engineering Body of Knowledge (SWEBOK V3.0).*
+
+### **IEEE 12207 — Software Life Cycle Processes**
+
+El estándar [@ieee1012-2016] define los procesos del ciclo de vida del software, estableciendo relaciones entre requisitos, diseño, implementación y mantenimiento.\
+HILL-SE adopta su estructura de fases, introduciendo la supervisión humana y los quality gates automáticos como capas adicionales de control.
+
+### **Agile Manifesto y marcos ágiles**
+
+Los principios de *Agile* [@github-actions] se reflejan en la iteración, la retroalimentación continua y la colaboración, pero HILL-SE añade trazabilidad documental, validación ética y roles formales de revisión humana.\
+\> Beck, K. et al. (2001). *Manifesto for Agile Software Development.*\
+\> Scrum Alliance (2020). *Scrum Guide.*
+
+### **Clean Architecture**
+
+El modelo de Robert C. Martin [@clean-architecture] inspira la estructura modular y la independencia entre capas que adopta HILL-SE, garantizando testabilidad, aislamiento y mantenibilidad.\
+\> Martin, R.C. (2017). *Clean Architecture: A Craftsman’s Guide to Software Structure and Design.*
+
+### **DevOps y MLOps frameworks**
+
+Los principios de integración y entrega continua (CI/CD) en HILL-SE derivan directamente de los marcos DevOps y MLOps modernos [@mlflow; @openssf-badge].\
+\> Google Cloud (2022). *MLOps: Continuous Delivery and Automation Pipelines in Machine Learning.*
+
+------------------------------------------------------------------------
+
+## Papers sobre LLMs aplicados a ingeniería de software
+
+### **Software Engineering with Generative AI**
+
+El documento de Google Research [@google-se-genai-2024] es una de las referencias más influyentes sobre el impacto real de los LLMs en flujos de desarrollo profesional, proponiendo lineamientos éticos y técnicos para su integración controlada.
+
+### **The Impact of Large Language Models on Software Engineering Workflows**
+
+Chen et al. (2023) analizan empíricamente cómo los LLMs alteran los procesos de diseño, testing y mantenimiento, resaltando la necesidad de estructuras *human-in-the-loop*.
+
+### **Towards Human-Centered AI-Assisted Programming**
+
+Zhang et al. (2023) proponen una taxonomía de colaboración humano-IA que influye directamente en la filosofía HILL-SE y su estructura de roles.
+
+### **Evaluating Code Quality and Reliability of LLM-Generated Software**
+
+Kalliamvakou et al. (2024) evalúan la calidad y mantenibilidad del código generado con LLMs, estableciendo métricas replicadas en el modelo de madurez HILL-SE.
+
+### **Large Language Models and Software Development: Opportunities and Challenges**
+
+Jiang et al. (2024) ofrecen una revisión sistemática de oportunidades y riesgos, desde la documentación automática hasta la validación de código asistido.
+
+------------------------------------------------------------------------
+
+## Herramientas recomendadas
+
+### **Gestión del ciclo de vida y documentación**
+
+-   **Quarto** [@quarto-docs] y **Sphinx** [@sphinx]: publicación técnica reproducible, compatible con Markdown y control de versiones.\
+-   **MkDocs** [@mkdocs]: documentación ligera para APIs y proyectos internos.\
+-   **Zotero**: gestión de referencias y conexión directa con Quarto.
+
+### **Diseño y arquitectura**
+
+-   **Mermaid**, **PlantUML**, **Draw.io**: herramientas para modelado UML y diagramas de flujo.\
+-   **ADR templates**: registro de decisiones arquitectónicas según IEEE 1471 y SWEBOK.
+
+### **Implementación**
+
+-   **VSCode** [@devcontainers] con **DevContainers**, **Black** [@black], **Flake8** [@flake8], **Mypy** [@mypy]: entorno reproducible y conforme a PEP 8.\
+-   **GitHub Copilot**: asistencia en código controlada dentro de límites metodológicos.\
+-   **Pre-commit hooks** [@pre-commit]: validación automática antes de cada commit.
+
+### **Testing y validación**
+
+-   **Pytest** [@pytest] y **Hypothesis** [@hypothesis] para Python.\
+-   **Jest** [@jest] y **Testing Library** [@testing-library] para TypeScript/React.\
+-   **SonarQube / SonarCloud** [@sonarqube-docs]: análisis estático y quality gates.
+
+### **Integración continua y seguridad**
+
+-   **GitHub Actions** [@github-actions], **GitLab CI**, **Codecov**.\
+-   **Bandit** [@bandit], **pip-audit** [@pip-audit], **Gitleaks** [@gitleaks], **CycloneDX** [@cyclonedx] para seguridad, licencias y SBOM.
+
+### **MLOps / Analítica**
+
+-   **MLflow**, **DVC**, **Weights & Biases**: control de experimentos, datasets y modelos.\
+-   **FastAPI** [@fastapi]: integración ligera de endpoints ML.
+
+### **Control del conocimiento**
+
+-   **Obsidian**, **Notion**, **Zotero**: gestión de notas, prompts y artefactos versionados.
+
+------------------------------------------------------------------------
+
+## Recursos formativos y comunitarios
+
+-   IEEE Software Engineering Standards: <https://standards.ieee.org/>\
+-   SWEBOK V3.0: <https://www.computer.org/education/bodies-of-knowledge/software-engineering>\
+-   OpenSSF Best Practices: <https://bestpractices.coreinfrastructure.org/>\
+-   NIST AI Risk Management Framework [@nist-ai-rmf-1]\
+-   EU AI Act [@eu-ai-act-2024]\
+-   FastAPI Docs [@fastapi]\
+-   Quarto Books [@quarto-docs]\
+-   Google AI Research Blog: <https://ai.googleblog.com/>
+
+------------------------------------------------------------------------
+
+## Referencias
+
+::: {#refs}
+:::

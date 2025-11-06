@@ -1,0 +1,248 @@
+# Glosario HILL-SE (Conceptos y acrónimos)
+
+El presente glosario reúne todos los términos, abreviaturas y expresiones técnicas empleadas a lo largo del *Manual HILL-SE*.\
+Cada entrada incluye una definición precisa y, cuando es útil, un ejemplo práctico aplicado al flujo de trabajo HILL-SE.
+
+------------------------------------------------------------------------
+
+## A — Artefactos y documentación
+
+### **ADR — Architecture Decision Record**
+
+Documento breve y versionado donde se registra una decisión arquitectónica relevante, su contexto y consecuencias.\
+**Ejemplo:** “ADR-001 — Adopción del patrón Strategy en PCOP Solver”.
+
+### **AC — Acceptance Criteria**
+
+Criterios de aceptación que definen cuándo una historia de usuario se considera completada.\
+Se expresan en formato **Gherkin**.\
+**Ejemplo:**
+
+``` gherkin
+Given una instancia de problema válida 
+When ejecuto el solver 
+Then obtengo una ruta óptima sin exceder el presupuesto
+```
+
+### **Docstring**
+
+Comentario estructurado dentro del código fuente que describe el propósito, parámetros, retorno y ejemplos de uso de una función, clase o módulo.\
+**Ejemplo:** `"""Calcula la distancia total recorrida. Args: route (list[int]) -> float"""`
+
+### **ADR Directory**
+
+Carpeta del repositorio (`/adr/`) donde se almacenan todos los Architecture Decision Records.
+
+### **Prompt**
+
+Instrucción textual dirigida a un modelo LLM que especifica el contexto, tarea y formato de respuesta esperados.\
+En HILL-SE los prompts son **artefactos versionados y auditables**.
+
+## B — Ciclo de vida y metodología
+
+### **HILL-SE — Human-in-the-Loop Software Engineering**
+
+Metodología de desarrollo software donde el ingeniero humano conserva el control total del proceso, mientras los modelos de lenguaje actúan como asistentes generativos bajo supervisión, trazabilidad y validación continua.\
+**Principio central:** *Human-First*.
+
+### **Spec → Tests → Code**
+
+Flujo secuencial en el que la especificación formal de requisitos se traduce primero en tests (criterios verificables) y, solo después, en código.\
+Garantiza consistencia y validación continua.
+
+### **Quality Gate**
+
+Conjunto de validaciones automáticas que debe superar cada commit o PR (lint, tests, cobertura, tipado, seguridad).\
+**Ejemplo:** build bloqueado si cobertura \< 90 %.
+
+### **DoR — Definition of Ready**
+
+Conjunto de condiciones que una historia de usuario debe cumplir antes de iniciar su desarrollo.\
+Incluye la presencia de requisitos, AC, UML, ADR y prompts validados.
+
+### **DoD — Definition of Done**
+
+Condiciones que debe cumplir una historia para considerarse finalizada: tests, calidad, documentación, revisión humana y release registrada.
+
+## C — Roles y responsabilidades
+
+### **Tech Lead**
+
+Responsable técnico del proyecto HILL-SE. Supervisa calidad, revisa ADRs y aprueba merges y releases.
+
+### **Developer**
+
+Ingeniero que implementa código, tests y documentación, asistido por LLMs y quality gates automáticos.
+
+### **QA Engineer**
+
+Encargado de validar funcionalidad, cobertura y cumplimiento de métricas de calidad (tests, seguridad, trazabilidad).
+
+### **Architect**
+
+Diseña la estructura modular del sistema y aprueba las decisiones de diseño documentadas en ADRs y UMLs.
+
+### **Product Owner**
+
+Representa al negocio y valida que los entregables cumplen los objetivos funcionales y de usuario final.
+
+## D — LLMs y agentes
+
+### **LLM — Large Language Model**
+
+Modelo de lenguaje de gran escala (ej. GPT-4, Claude, Gemini) capaz de generar, resumir o transformar texto y código.\
+En HILL-SE actúan como **asistentes supervisados**, nunca como decisores autónomos.
+
+### **HILL-SE Coach**
+
+Instancia personalizada de ChatGPT o modelo equivalente, especializada en la metodología HILL-SE.\
+Proporciona soporte metodológico, revisa artefactos y ayuda a mantener coherencia documental.
+
+### **Copilot**
+
+Asistente integrado en VSCode para autocompletar y sugerir código en tiempo real.\
+Opera dentro de los límites definidos por la metodología (no modifica arquitectura ni algoritmos críticos).
+
+### **Agentes especializados**
+
+LLMs configurados para tareas técnicas concretas, tales como:
+
+-   **UML Drafter:** genera o actualiza diagramas UML.
+
+-    **ADR Maker:** crea o mantiene registros ADR.
+
+-    **Test Engineer:** diseña tests unitarios y de integración.
+
+-   **Prompt Curator:** versiona y valida prompts del proyecto.
+
+## E — Herramientas y entornos
+
+### **VSCode**
+
+Entorno de desarrollo integrado recomendado por HILL-SE, compatible con DevContainers, linters, Copilot y control de versiones Git.
+
+### **DevContainer**
+
+Contenedor reproducible que define un entorno de desarrollo idéntico para todos los miembros del equipo.\
+**Archivo clave:** `.devcontainer/devcontainer.json`.
+
+### **SonarQube / SonarCloud**
+
+Herramienta de análisis estático que evalúa métricas de calidad (complejidad, duplicación, cobertura, seguridad).\
+Integrada en los quality gates CI/CD.
+
+### **Pre-commit**
+
+Framework para ejecutar linters, tests y validaciones automáticas antes de aceptar un commit.
+
+## F — Artefactos técnicos
+
+### **UML — Unified Modeling Language**
+
+Lenguaje de modelado visual utilizado para describir clases, relaciones, secuencias y componentes del sistema.\
+En HILL-SE se representa preferiblemente con **Mermaid** o **PlantUML**.
+
+### **ADR**
+
+(Ver sección A) Registros de decisiones arquitectónicas.
+
+### **SBOM — Software Bill of Materials**
+
+Inventario detallado de dependencias y componentes software incluidos en una release.\
+Permite auditorías de seguridad y cumplimiento de licencias.
+
+### **CI/CD — Continuous Integration / Continuous Deployment**
+
+Pipelines automatizados que construyen, prueban y despliegan el software de forma continua.\
+Incluyen quality gates y validaciones humanas.
+
+## G — Calidad, seguridad y compliance
+
+### **Bandit**
+
+Analizador de seguridad para proyectos Python.\
+Detecta vulnerabilidades comunes en código fuente.
+
+### **Pip-audit / npm audit**
+
+Herramientas que revisan las dependencias del proyecto para detectar vulnerabilidades conocidas.
+
+### **Gitleaks / Trufflehog**
+
+Herramientas que escanean el repositorio en busca de secretos o credenciales expuestos.
+
+### **GDPR — General Data Protection Regulation**
+
+Reglamento Europeo de Protección de Datos.\
+Todo flujo HILL-SE que maneje datos personales debe cumplir sus principios de minimización, transparencia y seguridad.
+
+### **License Compliance**
+
+Verificación de compatibilidad de licencias de dependencias con el marco legal o contractual del proyecto.
+
+## H — Pruebas y validación
+
+### **Pytest / Jest**
+
+Frameworks de testing recomendados para Python y TypeScript, respectivamente.
+
+### **Property-Based Testing**
+
+Técnica de test que genera automáticamente múltiples casos basados en propiedades generales del sistema.\
+Implementación sugerida: `hypothesis` (Python).
+
+### **Coverage**
+
+Porcentaje de líneas de código cubiertas por tests automáticos.\
+El estándar HILL-SE exige ≥ 90 %.
+
+### **Integration Test**
+
+Prueba que valida la interacción entre módulos o servicios, especialmente relevante en APIs y microservicios.
+
+## I — Conceptos clave del enfoque humano-IA
+
+### **Human-First Principle**
+
+Todo artefacto generado por IA debe ser revisado, comprendido y aprobado por un humano antes de ser aceptado en el repositorio.
+
+### **Trazabilidad**
+
+Capacidad de seguir la relación entre requisitos, código, tests, ADRs y releases.\
+Elemento fundamental de auditoría y reproducibilidad.
+
+### **Governanza**
+
+Conjunto de políticas y métricas que aseguran control humano, ética, transparencia y calidad técnica en el ciclo HILL-SE.
+
+### **Madurez HILL-SE**
+
+Nivel de adopción del marco metodológico, medido por indicadores de calidad, trazabilidad y automatización responsable.\
+Escala: 1 (Inicial) → 4 (Gobernanza completa).
+
+## J — Ejemplo de flujo terminológico completo
+
+| Fase | Artefactos principales | Agente LLM asociado | Supervisión humana |
+|----|----|----|----|
+| **Definición** | Historias, AC, prompts | Asistente | Product Owner, Tech Lead |
+| **Diseño** | UML, ADR | UML Drafter, ADR Maker | Architect |
+| **Implementación** | Código, tests, docstrings | Refactor, Test Advisor | Developer, QA |
+| **Verificación** | Pipelines, coverage, Sonar | Test Engineer | QA |
+| **Release** | SBOM, changelog, documentación | Redactor | Tech Lead |
+
+## K — Referencias externas asociadas
+
+-   IEEE 1012: *Standard for Software Verification and Validation.*
+
+-   ISO/IEC 25010: *Software product quality model.*
+
+-    EU AI Act (Borrador 2024): *Requisitos de transparencia y supervisión humana.*
+
+-    OpenSSF: *Best Practices Badge Program.*
+
+-   Google Research: *Software Engineering with Generative AI (2024).*
+
+## Conclusión
+
+El glosario HILL-SE no es solo un compendio terminológico: es el **diccionario operativo del marco metodológico**.\
+Cada término define un punto de control, una responsabilidad o un artefacto verificable dentro del ecosistema Human-in-the-Loop, asegurando que la colaboración entre humanos y modelos de lenguaje mantenga rigor técnico, transparencia y responsabilidad profesional.

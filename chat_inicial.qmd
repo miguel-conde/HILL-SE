@@ -1637,19 +1637,12 @@ B. **Glosario HILL-SE (Conceptos y acrónimos)**
 
 C. **Bibliografía y recursos**
 
--   
-
 -   Referencias metodológicas (SWEBOK, IEEE 12207, Agile, Clean Architecture)
-
--   
 
 -   Papers sobre LLMs aplicados a ingeniería de software
 
--   
+-    Herramientas recomendadas
 
--   Herramientas recomendadas
-
--   
 
 Voy a crear el manual como book de quarto. Habría que modificar el indice?
 
