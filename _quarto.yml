@@ -30,11 +30,16 @@ book:
         - 12-tres-capas-apoyo-llm.qmd
         - 13-configuracion-practicas-seguras.qmd
 
-    - part: "Parte IV — Casos de uso y ejemplos"
+    - part: "Parte IV - Observabilidad y Logging"
+      chapters: 
+        - 14-observabilidad-logging.qmd
+        - 15-logging-ciclo.qmd
+
+    - part: "Parte V — Casos de uso y ejemplos"
       chapters:
-        - 14-caso-libreria-optimizacion.qmd
-        - 15-caso-api-rest.qmd
-        - 16-caso-frontend.qmd
+        - 16-caso-libreria-optimizacion.qmd
+        - 17-caso-api-rest.qmd
+        - 18-caso-frontend.qmd
 
     - part: "Apéndices"
       chapters:

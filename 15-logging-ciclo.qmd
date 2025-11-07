@@ -1,0 +1,227 @@
+# Logging a lo largo del ciclo HILL-SE
+
+El *logging* en HILL-SE no se limita a la ejecución del software:\
+forma parte del **ciclo de vida completo del desarrollo**, desde la definición inicial hasta la publicación de una versión final.\
+Cada fase genera eventos distintos, pero todos comparten un objetivo común: **mantener trazabilidad verificable y responsabilidad humana**.
+
+------------------------------------------------------------------------
+
+## Principios de registro a lo largo del ciclo
+
+1.  **Consistencia.**\
+    Todos los eventos deben seguir el mismo formato y convención de campos (véase el capítulo anterior).
+
+2.  **Correlación.**\
+    Cada registro debe poder vincularse a un artefacto: historia, test, ADR, PR o release.
+
+3.  **Legibilidad.**\
+    Los logs no son solo para máquinas: deben ser comprensibles por los humanos que los revisan o auditan.
+
+4.  **Privacidad.**\
+    Ninguna fase está exenta de las políticas de redacción, anonimización y retención.
+
+5.  **Automatización + Supervisión.**\
+    Los registros se generan automáticamente, pero siempre bajo **validación humana**.
+
+------------------------------------------------------------------------
+
+## Fase 1 — Definición
+
+En esta fase se establecen los requisitos, historias de usuario, criterios de aceptación y objetivos de calidad.
+
+### Qué registrar
+
+| Tipo de evento                   | Ejemplo              | Propósito                                                                 |
+|:------------------------------|:------------------|:---------------------|
+| Creación de historia o requisito | `requirement.create` | Registrar el nacimiento de un artefacto funcional con autor y fecha.      |
+| Aprobación o rechazo             | `requirement.review` | Dejar constancia de la validación humana (*Product Owner* o *Tech Lead*). |
+| Definición de AC                 | `ac.define`          | Asociar criterios de aceptación a la historia.                            |
+| Cambio de estado                 | `requirement.update` | Mantener trazabilidad de modificaciones en los requisitos.                |
+
+### Campos recomendados
+
+``` json
+{
+  "artifact_ref": "REQ-001",
+  "event": "requirement.create",
+  "author": "mconde",
+  "reviewer": null,
+  "status": "draft"
+}
+```
+
+Los logs de definición pueden generarse mediante herramientas de gestión (por ejemplo, integración con Jira, Notion o Markdown versionado).
+
+## Fase 2 — Diseño
+
+Aquí se toman decisiones arquitectónicas, se redactan ADRs, se crean diagramas UML y se definen las pruebas iniciales.
+
+### Qué registrar
+
+| Tipo de evento     | Ejemplo         | Propósito                                                             |
+|--------------------|-----------------|-----------------------------------------------------------------------|
+| Creación de ADR    | `adr.create`    | Registrar la propuesta de una decisión técnica.                       |
+| Aprobación de ADR  | `adr.accept`    | Registrar la decisión adoptada y su responsable.                      |
+| Versión de UML     | `uml.update`    | Asociar la evolución del diseño a un commit o versión.                |
+| Revisión de diseño | `design.review` | Documentar la validación cruzada entre arquitectos y desarrolladores. |
+
+### Ejemplo de log
+
+``` json
+{
+  "artifact_ref": "PROMPT-013",
+  "event": "llm.call",
+  "model": "gpt-4-turbo",
+  "temperature": 0.3,
+  "tokens_input": 512,
+  "tokens_output": 138,
+  "reviewer": "developer",
+  "approved": true
+}
+```
+
+Estos logs se conservan junto a la documentación técnica y se vinculan con el control de versiones (commits o PR).
+
+## Fase 3 — Implementación
+
+Es la etapa donde se escribe el código y los LLMs generan o asisten en componentes, pruebas y documentación.\
+Aquí el logging tiene una doble dimensión: **ejecución técnica** y **auditoría de generación por LLM**.
+
+### Qué registrar
+
+| Tipo de evento              | Ejemplo        | Propósito                                              |
+|-----------------------------|----------------|--------------------------------------------------------|
+| Inicio de proceso o función | `solver.start` | Identificar ejecuciones significativas del código.     |
+| Fin de proceso              | `solver.end`   | Confirmar éxito, duración o error.                     |
+| Excepción o error           | `solver.error` | Registrar fallos recuperables o críticos.              |
+| Interacción con LLM         | `llm.call`     | Documentar uso del modelo, contexto y revisión humana. |
+| Aprobación humana           | `llm.review`   | Evidenciar que el resultado del modelo fue validado.   |
+
+### Ejemplo: log de interacción con LLM
+
+``` json
+{
+  "artifact_ref": "PROMPT-013",
+  "event": "llm.call",
+  "model": "gpt-4-turbo",
+  "temperature": 0.3,
+  "tokens_input": 512,
+  "tokens_output": 138,
+  "reviewer": "developer",
+  "approved": true
+}
+```
+
+### Ejemplo: log de ejecución de código
+
+``` json
+{
+  "artifact_ref": "FUNC-solve",
+  "event": "solver.end",
+  "trace_id": "c8e5-17a4",
+  "status": "ok",
+  "runtime_ms": 324,
+  "objective_value": 52.3
+}
+```
+
+Estos logs pueden integrarse con OpenTelemetry o simplemente conservarse en archivos `.jsonl` por ejecución.
+
+## Fase 4 — Verificación
+
+Incluye testing, análisis estático, linting, cobertura, seguridad y validación CI/CD.\
+Los logs de esta fase permiten auditar la calidad y la reproducibilidad.
+
+### Qué registrar
+
+| Tipo de evento    | Ejemplo                       | Propósito                                              |
+|-------------------|-------------------------------|--------------------------------------------------------|
+| Ejecución de test | `test.run`                    | Registrar nombre del test y resultado.                 |
+| Resultado global  | `test.summary`                | Guardar métricas agregadas (coverage, passed, failed). |
+| Linter o tipado   | `lint.run`, `mypy.run`        | Documentar cumplimiento de normas de estilo y tipado.  |
+| Seguridad         | `bandit.run`, `gitleaks.scan` | Dejar evidencia de validación de vulnerabilidades.     |
+
+### Ejemplo
+
+``` json
+{
+  "artifact_ref": "TEST-102",
+  "event": "test.run",
+  "status": "passed",
+  "duration": 0.52,
+  "coverage": 0.95,
+  "environment": "ci"
+}
+```
+
+Los pipelines CI/CD deben conservar estos logs como artefactos adjuntos, con hash o firma digital para trazabilidad.
+
+## Fase 5 — Release y mantenimiento
+
+En la publicación del software, los logs se convierten en parte del **dossier de release**: evidencias de que el producto cumple sus requisitos y pasó todos los *quality gates*.
+
+### Qué registrar
+
+| Tipo de evento            | Ejemplo           | Propósito                                    |
+|---------------------------|-------------------|----------------------------------------------|
+| Generación de release     | `release.build`   | Registrar versión, autor, commit base.       |
+| Publicación de artefactos | `release.publish` | Evidenciar subida a repositorios o entornos. |
+| Firma de release          | `release.sign`    | Garantizar integridad y autenticidad.        |
+| Cierre de versión         | `release.close`   | Documentar auditoría final y responsables.   |
+
+### Ejemplo
+
+``` json
+{
+  "artifact_ref": "RELEASE-1.1",
+  "event": "release.sign",
+  "version": "1.1.0",
+  "hash": "fae9a1e...",
+  "sbom": "cyclonedx_1.1.json",
+  "logs_package": "hillse_1.1_logs.zip",
+  "approver": "techlead"
+}
+```
+
+### Integración con los Quality Gates
+
+Los pipelines de HILL-SE deben exigir:
+
+-    Logs de test y cobertura ≥ umbral definido.
+
+-    Logs de seguridad sin vulnerabilidades.
+
+-   Registro firmado del resultado final de la build.
+
+-    Empaquetado conjunto SBOM + logs como parte de la release.
+
+## Fase 6 — Retención y gobernanza
+
+La responsabilidad sobre los logs es compartida:
+
+| Rol                             | Responsabilidad                                                          |
+|---------------------------------|--------------------------------------------------------------------------|
+| **Tech Lead**                   | Define la política de logging y aprueba la retención.                    |
+| **Developer**                   | Asegura que los eventos estén correctamente generados.                   |
+| **QA Engineer**                 | Verifica que los logs cumplan con las políticas de formato y privacidad. |
+| **Security Officer (opcional)** | Supervisa el almacenamiento seguro y la redacción.                       |
+
+Los logs de releases y auditorías deben conservarse como parte del repositorio histórico o sistema de gestión documental (según la política de cada organización).
+
+## Ejemplo resumen: ciclo de vida de un artefacto y sus logs
+
+| Fase           | Evento principal     | Log asociado                       |
+|----------------|----------------------|------------------------------------|
+| Definición     | Creación de historia | `requirement.create`               |
+| Diseño         | Aprobación de ADR    | `adr.accept`                       |
+| Implementación | Ejecución del solver | `solver.start` / `solver.end`      |
+| Verificación   | Ejecución de tests   | `test.run` / `test.summary`        |
+| Release        | Firma y publicación  | `release.sign` / `release.publish` |
+
+## Conclusión
+
+La trazabilidad en HILL-SE culmina en una cadena verificable de evidencias:\
+**cada artefacto deja huella**, y esas huellas —los logs— son el puente entre la intención del diseño y la verificación final del producto.
+
+> Un sistema sin logs es un sistema sin memoria;\
+> y en ingeniería asistida por IA, la memoria es el cimiento de la confianza.

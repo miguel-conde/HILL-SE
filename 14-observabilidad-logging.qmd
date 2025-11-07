@@ -1,0 +1,215 @@
+# Observabilidad y logging en HILL-SE
+
+La observabilidad y el registro estructurado (*logging*) constituyen el esqueleto invisible de la trazabilidad en HILL-SE.\
+Sin ellos, el principio *Human-First* perdería una de sus garantías fundamentales: la capacidad de **entender, verificar y auditar** el comportamiento del sistema y de los modelos de lenguaje que colaboran en su construcción.
+
+------------------------------------------------------------------------
+
+## Propósito y objetivos
+
+El *logging* en HILL-SE cumple tres funciones complementarias:
+
+1.  **Evidencia de trazabilidad.**\
+    Cada paso del ciclo de vida —desde la definición de requisitos hasta el despliegue— debe dejar un rastro verificable.
+
+2.  **Auditoría y responsabilidad.**\
+    Los registros permiten demostrar qué decisiones fueron tomadas, por quién y en qué contexto, reforzando la transparencia del método.
+
+3.  **Diagnóstico y mejora continua.**\
+    Los logs facilitan la detección de fallos, la monitorización de rendimiento y la evaluación del comportamiento de los LLMs.
+
+En consecuencia, el logging no es una actividad técnica aislada, sino una **práctica metodológica** integrada en la calidad continua del software.
+
+------------------------------------------------------------------------
+
+## Principios HILL-SE aplicados al logging
+
+1.  **Human-First.**\
+    Los logs están al servicio de la comprensión humana: deben ser legibles, interpretables y evitar la sobrecarga de información irrelevante.
+
+2.  **Trazabilidad end-to-end.**\
+    Todo evento debe poder vincularse a un artefacto: requisito, historia, ADR, test o release.
+
+3.  **Spec → Tests → Code → Evidence.**\
+    La evidencia registrada (logs) es la cuarta capa de validación del ciclo HILL-SE: completa el recorrido entre especificación y ejecución.
+
+4.  **Privacidad y ética.**\
+    Ningún log puede exponer datos personales, secretos ni información sensible de negocio.\
+    Se aplican mecanismos de *redaction* y políticas de retención.
+
+------------------------------------------------------------------------
+
+## Diseño de un sistema de logging estructurado
+
+### Formato y estructura
+
+Los logs deben emitirse en formato **JSON estructurado**, compatible con sistemas de análisis como ELK, OpenSearch o Grafana.\
+Cada evento se compone de metadatos homogéneos:
+
+| Campo                 | Descripción                                                          |
+|:-----------------------|:----------------------------------------------|
+| `ts`                  | Marca temporal en formato ISO-8601                                   |
+| `level`               | Nivel de severidad (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`) |
+| `logger`              | Nombre del módulo o componente                                       |
+| `message`             | Descripción breve del evento                                         |
+| `service`             | Servicio o microservicio que emite el log                            |
+| `trace_id`, `span_id` | Identificadores de correlación (OpenTelemetry)                       |
+| `artifact_ref`        | Referencia a requisito, ADR o test asociado                          |
+| `git_commit`          | Hash de la versión de código                                         |
+| `env`                 | Entorno de ejecución (`dev`, `test`, `prod`)                         |
+
+### Niveles de log
+
+-   **DEBUG:** información detallada de depuración (desactivado en producción).\
+-   **INFO:** eventos normales del flujo de trabajo (inicio/fin de procesos, llamadas a LLMs).\
+-   **WARNING:** situaciones anómalas recuperables.\
+-   **ERROR:** fallos funcionales o de validación.\
+-   **CRITICAL:** errores que comprometen la integridad del sistema.
+
+### Contexto y correlación
+
+Cada log debe poder **reconstruir la secuencia completa** de una ejecución:\
+por eso se recomienda incluir identificadores de contexto:
+
+-   `trace_id`: identificador único de transacción o request.\
+-   `span_id`: subevento dentro del *trace*.\
+-   `artifact_ref`: código del artefacto (por ejemplo, `ADR-001`, `TEST-045`, `PR-22`).
+
+Estos metadatos permiten navegar del evento técnico al requisito original o al commit asociado.
+
+------------------------------------------------------------------------
+
+## Integración con OpenTelemetry
+
+HILL-SE adopta un enfoque **agnóstico de tecnología**, pero promueve la compatibilidad con estándares abiertos de observabilidad como **OpenTelemetry (OTEL)**.
+
+-   Los `trace_id` y `span_id` se derivan del contexto OTEL cuando está activo.\
+-   Las métricas de latencia, consumo de tokens (en LLMs) y errores pueden emitirse junto a los logs.\
+-   Los pipelines CI/CD pueden exportar los logs y métricas a backends OTEL para su análisis y visualización.
+
+------------------------------------------------------------------------
+
+## Privacidad, redacción y cumplimiento
+
+### Evitar PII y secretos
+
+Los logs no deben contener datos personales ni valores confidenciales (tokens, contraseñas, correos, números de tarjeta, etc.).\
+Se aplican dos estrategias:
+
+1.  **Redacción previa:** en el código, mediante filtros o expresiones regulares que sustituyen patrones por `***`.\
+2.  **Redacción en el logger:** usando un *filter* que aplica máscaras antes de emitir el evento.
+
+### Política de retención
+
+| Tipo de log           | Retención recomendada | Destino                                     |
+|:--------------------|:---------------------------------|:-----------------|
+| Logs de desarrollo    | 30 días               | almacenamiento local o temporal             |
+| Logs de pruebas CI/CD | 90 días               | artefactos de pipeline                      |
+| Logs de producción    | 12 meses              | sistema centralizado con acceso restringido |
+| Logs de LLM (prompts) | 6 meses               | almacenamiento seguro y anonimizado         |
+
+### Cumplimiento normativo
+
+Los proyectos HILL-SE deben cumplir: - **GDPR / RGPD** en lo relativo a protección de datos.\
+- **OWASP Logging Guidelines** (evitar PII, trazas seguras, acceso controlado).\
+- **ISO 27001:2022** sobre gestión de información y seguridad.\
+- **NIST AI RMF 1.0** respecto a transparencia y explicabilidad.
+
+------------------------------------------------------------------------
+
+## Ejemplo de configuración (YAML)
+
+``` yaml
+version: 1
+disable_existing_loggers: false
+formatters:
+  json:
+    format: '{"ts":"%(asctime)s","level":"%(levelname)s","logger":"%(name)s","message":"%(message)s","trace_id":"%(trace_id)s","artifact_ref":"%(artifact_ref)s","git":"%(git_commit)s"}'
+    datefmt: '%Y-%m-%dT%H:%M:%S%z'
+filters:
+  context:
+    '()': hillse_common.logging.ContextFilter
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: json
+    filters: [context]
+root:
+  level: INFO
+  handlers: [console]
+```
+
+## Ejemplo de implementación en Python
+
+``` python
+import logging, os, json
+from logging.config import dictConfig
+
+def setup_logging():
+    config = {
+        "version": 1,
+        "formatters": {
+            "json": {
+                "format": json.dumps({
+                    "ts": "%(asctime)s",
+                    "level": "%(levelname)s",
+                    "logger": "%(name)s",
+                    "message": "%(message)s",
+                    "trace_id": "%(trace_id)s",
+                    "artifact_ref": "%(artifact_ref)s"
+                }),
+                "datefmt": "%Y-%m-%dT%H:%M:%S%z"
+            }
+        },
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+                "formatter": "json",
+                "level": "INFO"
+            }
+        },
+        "root": {"level": "INFO", "handlers": ["console"]}
+    }
+    dictConfig(config)
+
+log = logging.getLogger("hillse.example")
+
+def solve_problem(instance_id: str):
+    log.info("solve.start", extra={"trace_id": instance_id, "artifact_ref": "TEST-001"})
+    # ... lógica de negocio ...
+    log.info("solve.end", extra={"trace_id": instance_id, "artifact_ref": "TEST-001"})
+```
+
+El resultado son dos eventos JSON correlacionados, legibles por humanos y máquinas.
+
+## Buenas prácticas de logging en HILL-SE
+
+| Recomendación                                 | Descripción                                                                             |
+|-----------------------------------------------|-----------------------------------------------------------------------------------------|
+| **Loggear intenciones, no estados internos.** | El objetivo es auditar acciones significativas, no saturar el sistema con variables.    |
+| **Usar IDs y metadatos consistentes.**        | Mantener la correlación con artefactos (AC, ADR, PR, test).                             |
+| **Evitar duplicidades.**                      | Un mismo evento no debe registrarse en distintos niveles.                               |
+| **Verificar cobertura de logs.**              | Al igual que los tests, los logs deben cubrir los flujos críticos.                      |
+| **Firmar y conservar los logs relevantes.**   | En releases o auditorías, conservar los logs clave con hash y firma digital.            |
+| **Automatizar la revisión.**                  | Integrar validadores (p. ej., `bandit`, `gitleaks`, `detect-secrets`) en los pipelines. |
+
+## Integración con HILL-SE Quality Gates
+
+El *logging* pasa a ser un artefacto más evaluado en los **quality gates** del pipeline CI/CD.\
+Se recomienda:
+
+1.  Guardar los logs de ejecución de tests y linting como artefactos del pipeline.
+
+2.   Analizar automáticamente si contienen PII o errores de configuración.
+
+3.   Bloquear la *merge request* si se detectan violaciones de política de logging.
+
+4.   Asociar el *hash* del paquete de logs al SBOM de cada release.
+
+## Conclusión
+
+El *logging estructurado* consolida la trazabilidad, refuerza la responsabilidad humana y mejora la calidad del software en cada fase.\
+En HILL-SE, observar es parte de crear: cada log es una pieza de evidencia que enlaza la intención, la acción y la validación dentro del ciclo de ingeniería asistida por IA.
+
+> *Sin observabilidad no hay confianza; sin confianza, no hay colaboración entre humano e inteligencia artificial.*

@@ -1,0 +1,172 @@
+---
+title: "Actualización para logging en Manual HILL-SE"
+format: html
+---
+
+# Plan de actualización del Manual HILL-SE
+
+**Integración del sistema de logging y observabilidad**
+
+------------------------------------------------------------------------
+
+## **Fase 1 — Planificación y alcance**
+
+**Objetivo general:** Introducir de forma orgánica el concepto de *logging* y *observabilidad* en la metodología HILL-SE, reforzando los pilares de **trazabilidad, calidad continua y transparencia humana**.
+
+**Motivación:** Los sistemas de *logging estructurado* son el puente natural entre:
+
+-   la supervisión humana (*Human-First*),
+-   la validación automatizada (*quality gates*), y
+-   la responsabilidad documental (*trazabilidad end-to-end*).
+
+**Resultado esperado:** Una versión **1.1 del Manual HILL-SE** que incorpore la gestión de logs y observabilidad como componente metodológico y técnico.
+
+------------------------------------------------------------------------
+
+## **Fase 2 — Actualización de la estructura del manual**
+
+1.  Añadir una nueva parte o bloque temático:
+
+    ```         
+    Parte III bis — Observabilidad y Logging
+    ```
+
+2.  Dentro de esa parte, redactar **dos nuevos capítulos:**
+
+    -   **Capítulo A — Observabilidad y logging en HILL-SE** Conceptos, objetivos, principios, diseño estructurado, privacidad, OpenTelemetry.
+
+    -   **Capítulo B — Logging a lo largo del ciclo HILL-SE** Qué registrar en cada fase del ciclo (definición, diseño, implementación, verificación, release).
+
+3.  Actualizar el índice general del libro y el `_quarto.yml` para incluir estos nuevos capítulos después de *Entorno de desarrollo* o *Gestión de proyecto y roles*.
+
+------------------------------------------------------------------------
+
+## **Fase 3 — Revisión y actualización de capítulos existentes**
+
+1.  **El paradigma HILL-SE**
+
+    -   Añadir el subapartado *Trazabilidad observable*, explicando que los logs son evidencia verificable de la actividad del sistema.
+    -   Reforzar el principio *Human-First* con la idea de *observación con propósito*.
+
+2.  **Ciclo de vida y CI/CD**
+
+    -   Introducir la sección *Logs como artefactos de release*.
+    -   Explicar que los pipelines deben guardar los logs de ejecución, pruebas y auditorías junto al SBOM y los informes de seguridad.
+
+3.  **Gestión de proyecto y roles**
+
+    -   Añadir responsabilidades de logging:
+
+        -   *Tech Lead*: definir la política de logging.
+        -   *QA Engineer*: validar que los logs cumplen los criterios de trazabilidad y privacidad.
+        -   *Developer*: aplicar el formato y buenas prácticas.
+
+4.  **Plantillas y checklists HILL-SE**
+
+    -   Actualizar las plantillas de PR, DoR y DoD:
+
+        -   Se verifican logs estructurados.
+        -   No se registran datos sensibles (PII).
+        -   Se adjuntan logs de test como artefactos de CI.
+
+    -   Añadir a los *prompt templates* un campo sobre política de logging del prompt.
+
+5.  **Glosario HILL-SE**
+
+    -   Añadir definiciones nuevas:
+
+        -   *Structured logging*, *trace_id*, *span_id*, *artifact_ref*, *PII*, *log redaction*, *retención*, *observabilidad*.
+
+------------------------------------------------------------------------
+
+## **Fase 4 — Repositorio técnico (opcional y demostrativo)**
+
+> Esta fase **no es obligatoria**. Su objetivo sería ofrecer un **repositorio público de referencia** con ejemplos y plantillas del método.
+
+**Propósito:** servir como acompañamiento práctico al manual, con ejemplos ejecutables.
+
+**Contenido sugerido (si se crea):**
+
+```         
+hillse-reference/
+ ├─ config/logging.yaml           # Configuración JSON de logging
+ ├─ src/hillse_common/logging.py  # Inicialización y contexto de logs
+ ├─ tests/test_logging_policy.py  # Tests de emisión y privacidad
+ ├─ docs/policies/logging.md      # Política de logging y retención
+ └─ .github/workflows/ci.yml      # Ejemplo de CI con logs como artefactos
+```
+
+**Si no se crea el repositorio:** Los ejemplos de configuración y código se presentarán directamente en los nuevos capítulos del manual, marcados como “fragmentos ilustrativos”.
+
+------------------------------------------------------------------------
+
+## **Fase 5 — Redacción de los nuevos capítulos**
+
+### Capítulo A — *Observabilidad y logging en HILL-SE*
+
+-   Propósito y beneficios.
+-   Principios de diseño (estructura JSON, niveles, contexto, correlación).
+-   Campos mínimos (`ts`, `level`, `trace_id`, `artifact_ref`, etc.).
+-   Niveles y semántica (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`).
+-   Privacidad: *redaction*, no PII, políticas de retención.
+-   Integración opcional con OpenTelemetry.
+-   Ejemplo de configuración `logging.yaml`.
+
+### Capítulo B — *Logging a lo largo del ciclo HILL-SE*
+
+-   Qué loggear en cada fase:
+
+    -   **Definición:** creación de requisitos y AC.
+    -   **Diseño:** decisiones y versiones UML/ADR.
+    -   **Implementación:** ejecución de código y llamadas LLM (con metadatos).
+    -   **Verificación:** resultados de tests, linting, cobertura, seguridad.
+    -   **Release:** empaquetado de logs firmados con el resto de artefactos.
+
+-   Ejemplo de *test de logging* con `pytest` y `caplog`.
+
+------------------------------------------------------------------------
+
+## **Fase 6 — Revisión metodológica y bibliográfica**
+
+1.  Comprobar que la integración respeta los principios fundamentales del método (Human-First, Spec→Tests→Code, trazabilidad, calidad continua).
+
+2.  Revisar los diagramas UML y añadir, si procede, un componente “Logger” o “TelemetryService”.
+
+3.  Incorporar al `references.bib` nuevas fuentes:
+
+    -   *Python Logging Cookbook (PSF)*
+    -   *OWASP Logging Cheat Sheet*
+    -   *OpenTelemetry Specification*
+    -   *GDPR and Logging Guidelines (ENISA)*
+
+------------------------------------------------------------------------
+
+## **Fase 7 — Publicación**
+
+1.  **Versión:** Indicar en el prólogo o portada:
+
+    > *Edición 1.1 — Incluye Observabilidad y Logging (enero 2026).*
+
+2.  **Renderización y control:**
+
+    -   Renderizar libro completo (`quarto render`).
+    -   Validar que las nuevas citas aparecen correctamente en `references.bib`.
+
+3.  **Distribución:**
+
+    -   Publicar la nueva versión en Netlify, GitHub Pages o repositorio interno.
+    -   Si más adelante se crea el *repo técnico*, enlazarlo desde el capítulo correspondiente.
+
+------------------------------------------------------------------------
+
+## **Resumen operativo**
+
+| Fase | Acción                                  | Resultado                                   |
+|--------------|----------------------------|-------------------------------|
+| 1    | Definir alcance                         | Logging integrado en la visión metodológica |
+| 2    | Añadir parte “Observabilidad y Logging” | Índice y capítulos nuevos                   |
+| 3    | Actualizar capítulos existentes         | Coherencia transversal                      |
+| 4    | (Opcional) Crear repo demostrativo      | Ejemplos prácticos y plantillas             |
+| 5    | Redactar nuevos capítulos               | Contenido técnico y didáctico               |
+| 6    | Revisar y citar nuevas fuentes          | Referencias actualizadas                    |
+| 7    | Publicar versión 1.1                    | Manual actualizado y trazable               |

@@ -504,7 +504,7 @@ Excelente pregunta — y muy buena ocasión para formalizarlo.
 ### 🔹 Desglose del acrónimo
 
 | Letra  | Significado              | Rol dentro del método                                                                                             |
-|------------------|------------------|-------------------------------------|
+|------------------|------------------|------------------------------------|
 | **H**  | **Human**                | El ingeniero humano define requisitos, arquitectura, verifica resultados y aprueba decisiones.                    |
 | **I**  | **In-the-Loop**          | El humano supervisa y cierra el ciclo en cada interacción con el LLM. No hay pasos autónomos.                     |
 | **LL** | **Large Language Model** | El modelo asiste en tareas cognitivas: análisis de requisitos, generación de código, documentación, pruebas, etc. |
@@ -563,7 +563,7 @@ Combina los principios de la ingeniería de software clásica con las nuevas cap
 ### Acrónimo
 
 | Sigla  | Significado              | Rol dentro del método                                                                                                |
-|------------------|------------------|-------------------------------------|
+|------------------|------------------|------------------------------------|
 | **H**  | **Human**                | El ingeniero humano define requisitos, diseña la arquitectura, valida resultados y asume la responsabilidad técnica. |
 | **I**  | **In-the-Loop**          | Cada fase incluye verificación humana; el LLM nunca ejecuta tareas críticas sin supervisión.                         |
 | **LL** | **Large Language Model** | El modelo asiste en análisis, diseño, generación de código, documentación, testing y refactorización.                |
@@ -1641,8 +1641,7 @@ C. **Bibliografía y recursos**
 
 -   Papers sobre LLMs aplicados a ingeniería de software
 
--    Herramientas recomendadas
-
+-   Herramientas recomendadas
 
 Voy a crear el manual como book de quarto. Habría que modificar el indice?
 
