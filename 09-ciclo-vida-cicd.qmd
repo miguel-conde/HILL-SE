@@ -71,7 +71,7 @@ Los **quality gates** son los filtros que garantizan que ningún cambio que redu
 En HILL-SE se dividen en cinco categorías fundamentales:
 
 | Tipo de control   | Herramientas                         | Umbral / Requisito              |
-|------------------|-----------------------------|--------------------------|
+|------------------|----------------------------|--------------------------|
 | **Lint / Estilo** | `flake8`, `black`, `isort`           | Cumplimiento PEP 8 sin errores. |
 | **Tipado**        | `mypy --strict`                      | Sin errores de tipo.            |
 | **Tests**         | `pytest`, `pytest-cov`, `hypothesis` | Todos los tests deben pasar.    |
@@ -119,20 +119,20 @@ HILL-SE adopta el esquema de **versionado semántico (semver)**:\
 
 -   **MINOR:** nuevas funcionalidades compatibles.
 
--    **PATCH:** correcciones sin cambio funcional.
+-   **PATCH:** correcciones sin cambio funcional.
 
 Cada release se gestiona de forma automática mediante pipeline y revisión humana.\
 El proceso estándar incluye:
 
-1.   **Tagging automático** según el contenido del changelog.
+1.  **Tagging automático** según el contenido del changelog.
 
-2.   **Generación del changelog** a partir de commits y PRs etiquetadas (`feat`, `fix`, `docs`, etc.).
+2.  **Generación del changelog** a partir de commits y PRs etiquetadas (`feat`, `fix`, `docs`, etc.).
 
-3.   **Creación del paquete distribuible** (`sdist`, `wheel`) o del contenedor Docker.
+3.  **Creación del paquete distribuible** (`sdist`, `wheel`) o del contenedor Docker.
 
 4.  **Firma digital y checksum** para auditoría.
 
-5.   **Publicación en repositorio interno o PyPI** sólo tras aprobación humana.
+5.  **Publicación en repositorio interno o PyPI** sólo tras aprobación humana.
 
 **Ejemplo de pasos automatizados (extracto):**
 
@@ -151,7 +151,7 @@ Los metadatos de cada release incluyen:
 
 -   commit SHA y autoría,
 
--    número de PR y issue relacionados,
+-   número de PR y issue relacionados,
 
 -   versión de los artefactos de documentación y SBOM generados.
 
@@ -165,9 +165,9 @@ HILL-SE integra esta práctica como parte del control de calidad continuo.
 Un **SBOM** (Software Bill of Materials) es un inventario completo y firmado de las dependencias del proyecto, sus versiones y sus orígenes.\
 Permite:
 
--    detectar vulnerabilidades conocidas (CVE),
+-   detectar vulnerabilidades conocidas (CVE),
 
--    cumplir requisitos regulatorios,
+-   cumplir requisitos regulatorios,
 
 -   reproducir entornos de compilación,
 
@@ -186,15 +186,55 @@ El archivo `sbom.xml` o `sbom.json` se publica como artefacto del pipeline y se 
 
 Cada release debe incluir:
 
--    **SBOM actualizado**.
+-   **SBOM actualizado**.
 
 -   **Reportes de seguridad (`bandit`, `pip-audit`)**.
 
--    **Informe de cobertura y calidad (SonarQube o cobertura XML).**
+-   **Informe de cobertura y calidad (SonarQube o cobertura XML).**
 
--    **Enlaces a ADRs y PRs aprobadas.**
+-   **Enlaces a ADRs y PRs aprobadas.**
 
 Estos artefactos conforman el **dossier de release**, que se conserva en el repositorio interno o en la herramienta de gestión documental de la organización.
+
+## Logs como artefactos de release
+
+En el ecosistema HILL-SE, los logs no son un subproducto efímero de la ejecución:\
+constituyen **artefactos de calidad y trazabilidad**, al mismo nivel que los informes de pruebas, los resultados de cobertura o los catálogos SBOM.
+
+Cada pipeline de integración y despliegue continuo debe **conservar los registros generados durante la verificación del software** —tests unitarios, linters, tipado, análisis de seguridad y cobertura— y **adjuntarlos como artefactos firmados** al finalizar la ejecución.
+
+Estos artefactos de logs cumplen tres propósitos fundamentales:
+
+1.  **Trazabilidad de calidad.**\
+    Permiten reconstruir el estado del sistema en cualquier momento, vinculado al commit o versión correspondiente.
+
+2.  **Auditoría y cumplimiento.**\
+    Los logs se asocian explícitamente al SBOM (Software Bill of Materials) y al número de versión, de modo que cada release queda respaldada por evidencias verificables.
+
+3.  **Seguridad y privacidad.**\
+    Antes de publicarse, los pipelines deben ejecutar **detectores de PII o secretos** (*gitleaks*, *detect-secrets*, *trufflehog*) que garanticen que ningún log contiene información sensible o identificable.
+
+Una vez validados, los artefactos de logs se almacenan junto a los paquetes de release o en repositorios dedicados a la trazabilidad de calidad.
+
+### Ejemplo de configuración en GitHub Actions (referencia)
+
+El siguiente fragmento ilustra el paso final de un pipeline que conserva los logs como artefactos asociados a la release:
+
+``` yaml
+- name: Upload logs as artifacts
+  uses: actions/upload-artifact@v4
+  with:
+    name: logs-ci
+    path: |
+      reports/test_results.log
+      reports/lint.log
+      reports/coverage.xml
+    retention-days: 90
+```
+
+En este esquema, los logs quedan almacenados durante 90 días, firmados y asociados al identificador de la build o release.\
+
+Su enlace con el SBOM y la versión garantiza la **observabilidad completa del ciclo de vida**, de acuerdo con los principios de trazabilidad y calidad continua del paradigma HILL-SE.
 
 ## Conclusión
 

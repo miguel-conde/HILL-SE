@@ -220,17 +220,67 @@ Conjunto de políticas y métricas que aseguran control humano, ética, transpar
 Nivel de adopción del marco metodológico, medido por indicadores de calidad, trazabilidad y automatización responsable.\
 Escala: 1 (Inicial) → 4 (Gobernanza completa).
 
-## J — Ejemplo de flujo terminológico completo
 
-| Fase | Artefactos principales | Agente LLM asociado | Supervisión humana |
-|----|----|----|----|
-| **Definición** | Historias, AC, prompts | Asistente | Product Owner, Tech Lead |
-| **Diseño** | UML, ADR | UML Drafter, ADR Maker | Architect |
-| **Implementación** | Código, tests, docstrings | Refactor, Test Advisor | Developer, QA |
-| **Verificación** | Pipelines, coverage, Sonar | Test Engineer | QA |
-| **Release** | SBOM, changelog, documentación | Redactor | Tech Lead |
+## J — Observabilidad y logging
 
-## K — Referencias externas asociadas
+**Structured logging**  
+Registro en formato estructurado (habitualmente JSON), diseñado para ser legible tanto por humanos como por sistemas automatizados.  
+Permite buscar, filtrar y correlacionar eventos de manera eficiente, asegurando trazabilidad entre ejecución, pruebas y artefactos.
+
+---
+
+**trace_id / span_id**  
+Identificadores únicos utilizados para correlacionar eventos dentro de una misma ejecución o transacción.  
+El `trace_id` representa el contexto global de una operación (por ejemplo, una llamada API o un job completo), mientras que el `span_id` identifica subeventos o pasos dentro de ese contexto.  
+Ambos conceptos provienen de los estándares de *distributed tracing* definidos por **OpenTelemetry**.
+
+---
+
+**artifact_ref**  
+Identificador de referencia que vincula cada log con el artefacto del que procede (requisito, ADR, prueba, PR o release).  
+Ejemplo: `REQ-012`, `ADR-004`, `TEST-093`, `PR-22`.  
+Permite reconstruir la trazabilidad completa desde la definición hasta la verificación.
+
+---
+
+**PII (Personally Identifiable Information)**  
+Información personal identificable, como nombres, direcciones de correo, identificadores de usuario, tokens, direcciones IP o cualquier dato que permita reconocer a una persona física.  
+Los proyectos HILL-SE deben evitar registrar PII en los logs y aplicar técnicas de anonimización o redacción.
+
+---
+
+**Redaction**  
+Proceso mediante el cual los datos sensibles o confidenciales se sustituyen por máscaras o marcadores (por ejemplo, `***`).  
+Puede aplicarse en tiempo de ejecución mediante filtros del logger o durante el postprocesado de los logs.  
+Garantiza el cumplimiento de las políticas de privacidad y la normativa de protección de datos.
+
+---
+
+**Retención**  
+Periodo durante el cual los registros se conservan antes de su eliminación o archivo.  
+La política de retención debe equilibrar necesidades de auditoría y cumplimiento legal con la protección de la privacidad.  
+Ejemplo típico: 90 días en entornos de prueba, 12 meses en producción.
+
+---
+
+**Observabilidad**  
+Capacidad de comprender el comportamiento interno de un sistema a partir de sus señales externas: logs, métricas y trazas.  
+En HILL-SE, la observabilidad representa la extensión natural de la trazabilidad: convierte cada ejecución y cada decisión en evidencia verificable dentro del ciclo de vida del software.
+
+
+## K — Ejemplo de flujo terminológico completo
+
+
+| Fase | Artefactos principales | Agente LLM asociado | Supervisión humana | Evidencias de trazabilidad |
+|------|------------------------|---------------------|--------------------|-----------------------------|
+| **Definición** | Historias, AC, prompts, requisitos de logging | Asistente | Product Owner, Tech Lead | Logs de creación y revisión de requisitos (`requirement.create`, `ac.define`) |
+| **Diseño** | UML, ADR, políticas de logging | UML Drafter, ADR Maker | Architect, Tech Lead | Logs de decisiones arquitectónicas (`adr.create`, `adr.accept`) y versiones de UML |
+| **Implementación** | Código, tests, docstrings, eventos de ejecución | Refactor, Test Advisor | Developer, QA | Logs de ejecución de funciones y llamadas LLM (`solver.start`, `llm.call`) |
+| **Verificación** | Pipelines, coverage, Sonar, artefactos de logs | Test Engineer | QA | Logs de pruebas y validaciones (`test.run`, `lint.run`, `coverage.report`) |
+| **Release** | SBOM, changelog, documentación, dossier de logs firmados | Redactor | Tech Lead, QA | Logs de release (`release.build`, `release.sign`) y vinculación con SBOM |
+| **Mantenimiento** | Auditorías, métricas de observabilidad, retención y rotación de logs | HILL-SE Coach | Tech Lead, Security Officer | Logs de auditoría, métricas de retención y validaciones de compliance |
+
+## L — Referencias externas asociadas
 
 -   IEEE 1012: *Standard for Software Verification and Validation.*
 

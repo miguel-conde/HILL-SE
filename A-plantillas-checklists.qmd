@@ -213,6 +213,71 @@ Scenario: Resolver instancia PCOP válida
   And la distancia no supera el presupuesto definido
 ```
 
+## Actualización de plantillas y checklists con criterios de logging
+
+La observabilidad y el logging estructurado son elementos esenciales de la trazabilidad en HILL-SE.\
+Por ello, las plantillas de control y validación se actualizan para incorporar requisitos explícitos sobre la generación, calidad y privacidad de los registros.
+
+------------------------------------------------------------------------
+
+### Pull Request Checklist (PR)
+
+Cada solicitud de incorporación de código debe cumplir los criterios estándar de calidad, seguridad y trazabilidad, ampliados ahora con los siguientes puntos relativos al logging:
+
+| Requisito                                               | Descripción                                                                                                                     |
+|:--------------------------------|:--------------------------------------|
+| ✅ **Se emiten logs estructurados (JSON).**             | El código incorpora llamadas al sistema de logging siguiendo el formato acordado (niveles, campos y correlación de artefactos). |
+| ✅ **No se registran PII ni secretos.**                 | Los logs han sido revisados para garantizar que no contienen datos personales, claves, tokens ni información sensible.          |
+| ✅ **Se adjuntan logs de test como artefactos del CI.** | Los resultados de las pruebas (pytest, coverage, lint, seguridad) se guardan y suben al pipeline como evidencias firmadas.      |
+
+El cumplimiento de estos criterios forma parte del *review técnico obligatorio* antes de autorizar la fusión a la rama principal.
+
+------------------------------------------------------------------------
+
+### Definition of Ready (DoR)
+
+Antes de que una historia o tarea se considere *lista para desarrollo*, debe incluir la definición explícita de los eventos mínimos que deberán registrarse durante su ejecución.
+
+| Criterio                                                                 | Descripción                                                                                                                                        |
+|:--------------------------------|:--------------------------------------|
+| 🟦 **Los criterios de aceptación incluyen eventos mínimos a registrar.** | Cada AC debe identificar los puntos clave del flujo que generarán logs verificables (por ejemplo, `solver.start`, `solver.end`, `error.detected`). |
+
+De esta manera, la planificación del logging comienza en la fase de diseño funcional, no como una actividad posterior.
+
+------------------------------------------------------------------------
+
+### Definition of Done (DoD)
+
+Al concluir una tarea o historia, el código se considera completado únicamente si cumple los requisitos de verificación, calidad y observabilidad definidos.
+
+| Criterio                                                   | Descripción                                                                                                                                                                     |
+|:--------------------------------|:--------------------------------------|
+| 🟩 **Los tests de logging pasan y no hay alertas de PII.** | Las pruebas automáticas verifican que los eventos mínimos se emiten correctamente (`caplog`, `pytest` o equivalente) y que los detectores de secretos o PII no generan alertas. |
+
+Este criterio garantiza que el sistema es tanto funcional como auditable, alineado con los principios de trazabilidad y responsabilidad de HILL-SE.
+
+------------------------------------------------------------------------
+
+### Prompt Template (actualización)
+
+El uso de modelos de lenguaje dentro del ciclo HILL-SE exige que cada *prompt* o plantilla de interacción defina su política de registro.\
+Se añade un nuevo campo para documentar qué información se registra y cómo se protege:
+
+``` markdown
+---
+prompt_id: PROMPT-XXX
+objetivo: Describir la tarea o generación esperada.
+contexto: Incluir referencias a artefactos (AC, módulo, test).
+política_de_logging:
+  qué_registrar: ["prompt_id", "modelo", "tokens_input", "tokens_output", "reviewer"]
+  saneado: "aplicar redacción de PII, truncar respuestas largas, anonimizar IDs"
+---
+```
+
+Este bloque asegura que los registros de interacción con LLMs son **trazables, auditables y conformes con las políticas de privacidad** del proyecto.
+
+En conjunto, estas actualizaciones convierten las plantillas de HILL-SE en instrumentos de control de calidad integrales, donde la observabilidad y la protección de datos forman parte explícita de la definición de “trabajo terminado”.
+
 ## Conclusión
 
 Las plantillas y checklists HILL-SE son el **esqueleto documental del método**:\

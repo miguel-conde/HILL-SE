@@ -2,102 +2,123 @@
 
 ## Origen y propósito
 
-La aparición de los **Modelos de Lenguaje de Gran Escala (LLMs)** ha introducido una nueva fase en la historia de la ingeniería de software.  
-Por primera vez, los desarrolladores cuentan con herramientas capaces de **entender lenguaje natural y código**, proponer soluciones de programación completas y generar documentación técnica.  
+La aparición de los **Modelos de Lenguaje de Gran Escala (LLMs)** ha introducido una nueva fase en la historia de la ingeniería de software.\
+Por primera vez, los desarrolladores cuentan con herramientas capaces de **entender lenguaje natural y código**, proponer soluciones de programación completas y generar documentación técnica.
 
 Sin embargo, esta nueva capacidad plantea un desafío: ¿cómo integrar la generación automática dentro de un proceso de ingeniería sin perder los fundamentos de calidad, trazabilidad y control que caracterizan a la disciplina?
 
-El marco **HILL-SE (Human-In-the-Loop Large-Language-Model Software Engineering)** nace para responder a esta pregunta.  
+El marco **HILL-SE (Human-In-the-Loop Large-Language-Model Software Engineering)** nace para responder a esta pregunta.\
 Su propósito es proporcionar una metodología práctica y rigurosa que permita:
 
-1. **Aprovechar el potencial de los LLMs** para acelerar la creación de código, documentación y pruebas.  
-2. **Preservar el control humano** sobre la arquitectura, la verificación y las decisiones técnicas.  
-3. **Garantizar trazabilidad, calidad y reproducibilidad** en entornos donde intervienen modelos generativos.  
-4. **Alinear la inteligencia artificial con la ingeniería de software clásica**, asegurando que los productos resultantes sigan siendo verificables, auditables y mantenibles.
+1.  **Aprovechar el potencial de los LLMs** para acelerar la creación de código, documentación y pruebas.\
+2.  **Preservar el control humano** sobre la arquitectura, la verificación y las decisiones técnicas.\
+3.  **Garantizar trazabilidad, calidad y reproducibilidad** en entornos donde intervienen modelos generativos.\
+4.  **Alinear la inteligencia artificial con la ingeniería de software clásica**, asegurando que los productos resultantes sigan siendo verificables, auditables y mantenibles.
 
 En síntesis, HILL-SE no pretende sustituir al ingeniero, sino **amplificar su capacidad intelectual** dentro de un marco disciplinado, transparente y auditable.
 
----
+------------------------------------------------------------------------
 
 ## Definición formal del acrónimo
 
 El acrónimo **HILL-SE** resume los elementos esenciales del paradigma:
 
-| Letra | Significado | Rol dentro de la metodología |
-|:------|:-------------|:-----------------------------|
-| **H** | **Human** | El ingeniero humano define los requisitos, diseña la arquitectura, verifica los resultados y asume la responsabilidad técnica final. |
-| **I** | **In-the-Loop** | El humano participa activamente en cada fase del proceso, revisando, aprobando y cerrando los ciclos de generación. No existen pasos autónomos sin supervisión. |
-| **LL** | **Large-Language-Model** | El modelo de lenguaje actúa como asistente cognitivo, generando propuestas de código, documentación o pruebas dentro de los límites definidos por el humano. |
-| **SE** | **Software Engineering** | El marco de referencia: buenas prácticas de ingeniería, orientación a objetos, documentación formal, validación, CI/CD y control de calidad continuo. |
+| Letra  | Significado              | Rol dentro de la metodología                                                                                                                                    |
+|:---------------|:-----------------|:--------------------------------------|
+| **H**  | **Human**                | El ingeniero humano define los requisitos, diseña la arquitectura, verifica los resultados y asume la responsabilidad técnica final.                            |
+| **I**  | **In-the-Loop**          | El humano participa activamente en cada fase del proceso, revisando, aprobando y cerrando los ciclos de generación. No existen pasos autónomos sin supervisión. |
+| **LL** | **Large-Language-Model** | El modelo de lenguaje actúa como asistente cognitivo, generando propuestas de código, documentación o pruebas dentro de los límites definidos por el humano.    |
+| **SE** | **Software Engineering** | El marco de referencia: buenas prácticas de ingeniería, orientación a objetos, documentación formal, validación, CI/CD y control de calidad continuo.           |
 
-Esta combinación sintetiza la esencia del paradigma:  
-> La ingeniería de software clásica mantiene el control, los LLMs aportan velocidad y capacidad generativa, y el humano orquesta ambos mundos.
+Esta combinación sintetiza la esencia del paradigma:\
+\> La ingeniería de software clásica mantiene el control, los LLMs aportan velocidad y capacidad generativa, y el humano orquesta ambos mundos.
 
----
+------------------------------------------------------------------------
 
 ## Principios rectores de HILL-SE
 
 Los siguientes principios definen el modo de trabajo y la cultura técnica que sustenta la metodología.
 
 ### Human First
-Todas las decisiones de diseño, seguridad y calidad deben ser tomadas o validadas por un humano.  
-El LLM puede generar alternativas, pero **nunca debe asumir decisiones críticas** sin revisión humana.  
+
+Todas las decisiones de diseño, seguridad y calidad deben ser tomadas o validadas por un humano.\
+El LLM puede generar alternativas, pero **nunca debe asumir decisiones críticas** sin revisión humana.\
 Este principio se traduce en prácticas como la *revisión manual obligatoria de PRs*, la documentación de decisiones arquitectónicas (ADRs) y la firma humana de las entregas.
 
 ### Spec → Tests → Code
-El flujo de desarrollo comienza con una **especificación verificable**, continúa con la definición de **tests que operacionalizan esa especificación**, y finaliza con la generación de **código que satisface dichos tests**.  
+
+El flujo de desarrollo comienza con una **especificación verificable**, continúa con la definición de **tests que operacionalizan esa especificación**, y finaliza con la generación de **código que satisface dichos tests**.\
 Los LLMs pueden asistir en la traducción de requisitos a pruebas o en la creación de código de soporte, pero la dirección del proceso sigue siendo **top-down**, impulsada por el ingeniero.
 
 ### Trazabilidad y transparencia
-Cada elemento del sistema debe poder rastrearse hasta su origen:  
-- Los requisitos se vinculan con criterios de aceptación (AC).  
-- Los AC se implementan en tests.  
-- Los tests validan módulos de código versionados.  
-- Las revisiones y prompts se registran en el historial del proyecto.  
+
+Cada elemento del sistema debe poder rastrearse hasta su origen:\
+- Los requisitos se vinculan con criterios de aceptación (AC).\
+- Los AC se implementan en tests.\
+- Los tests validan módulos de código versionados.\
+- Las revisiones y prompts se registran en el historial del proyecto.
 
 Esta trazabilidad garantiza responsabilidad técnica y permite auditar cómo las decisiones del LLM influyen en el producto final.
 
 ### Calidad continua
-La calidad no se verifica al final, sino que se mantiene durante todo el ciclo de vida mediante:  
-- **Quality Gates automáticos** (linting, tipado, cobertura, seguridad).  
-- **Integración continua (CI/CD)** con revisión humana.  
-- **Métricas objetivas** (cobertura, complejidad, defectos).  
+
+La calidad no se verifica al final, sino que se mantiene durante todo el ciclo de vida mediante:\
+- **Quality Gates automáticos** (linting, tipado, cobertura, seguridad).\
+- **Integración continua (CI/CD)** con revisión humana.\
+- **Métricas objetivas** (cobertura, complejidad, defectos).\
 - **Mejora iterativa** basada en retros y aprendizaje de prompts.
 
 El objetivo es mantener un equilibrio constante entre **productividad asistida por IA** y **calidad verificable por ingeniería**.
 
----
+------------------------------------------------------------------------
 
 ## Roles humanos y roles de los LLMs
 
-En el paradigma HILL-SE se distinguen claramente los **roles del ingeniero humano** y los **roles del modelo de lenguaje**.  
+En el paradigma HILL-SE se distinguen claramente los **roles del ingeniero humano** y los **roles del modelo de lenguaje**.\
 Ambos colaboran, pero bajo una jerarquía clara: el humano lidera; el modelo asiste.
 
 ### Roles humanos
 
-| Rol | Responsabilidad principal |
-|:----|:---------------------------|
-| **Arquitecto o Tech Lead** | Define la arquitectura general, aprueba ADRs, diseña UML y mantiene la coherencia técnica. |
-| **Desarrollador** | Implementa módulos, redacta tests núcleo, revisa código propuesto por el LLM. |
-| **Responsable de QA** | Supervisa calidad y cobertura, valida CI/CD, controla métricas y riesgos. |
-| **Product Owner o Stakeholder Técnico** | Define objetivos, prioridades y criterios de aceptación verificables. |
+| Rol                                     | Responsabilidad principal                                                                  |
+|:--------------|:--------------------------------------------------------|
+| **Arquitecto o Tech Lead**              | Define la arquitectura general, aprueba ADRs, diseña UML y mantiene la coherencia técnica. |
+| **Desarrollador**                       | Implementa módulos, redacta tests núcleo, revisa código propuesto por el LLM.              |
+| **Responsable de QA**                   | Supervisa calidad y cobertura, valida CI/CD, controla métricas y riesgos.                  |
+| **Product Owner o Stakeholder Técnico** | Define objetivos, prioridades y criterios de aceptación verificables.                      |
 
 Los humanos son responsables de **planificación, diseño, validación y gobernanza**.
 
 ### Roles de los LLMs
 
-| Rol | Función dentro del proceso |
-|:----|:----------------------------|
-| **Asistente de requisitos** | Ayuda a refinar historias de usuario y redactar criterios de aceptación en Gherkin. |
-| **Diseñador asistido** | Propone diagramas UML y alternativas arquitectónicas que el humano evalúa. |
-| **Generador de código** | Produce código conforme a la especificación y estilo PEP 8, con tipado y docstrings. |
-| **Asistente de pruebas** | Sugiere casos unitarios y *property-based*, complementando los diseñados por humanos. |
-| **Redactor técnico** | Elabora docstrings, ADRs y documentación sincronizada con el código. |
+| Rol                         | Función dentro del proceso                                                            |
+|:--------------|:--------------------------------------------------------|
+| **Asistente de requisitos** | Ayuda a refinar historias de usuario y redactar criterios de aceptación en Gherkin.   |
+| **Diseñador asistido**      | Propone diagramas UML y alternativas arquitectónicas que el humano evalúa.            |
+| **Generador de código**     | Produce código conforme a la especificación y estilo PEP 8, con tipado y docstrings.  |
+| **Asistente de pruebas**    | Sugiere casos unitarios y *property-based*, complementando los diseñados por humanos. |
+| **Redactor técnico**        | Elabora docstrings, ADRs y documentación sincronizada con el código.                  |
 
 Cada contribución del LLM debe pasar por **verificación humana y quality gates automáticos** antes de incorporarse al repositorio principal.
 
----
+------------------------------------------------------------------------
 
-En resumen, el paradigma HILL-SE se construye sobre una idea central:  
+## Trazabilidad observable
+
+La trazabilidad en HILL-SE no se limita a la correspondencia entre requisitos, pruebas y código.\
+También incluye la capacidad de **observar el comportamiento del sistema y de sus agentes** —humanos y artificiales— de forma estructurada, verificable y reproducible.
+
+El *logging estructurado* constituye la **evidencia operativa** de los principios que definen el paradigma HILL-SE:
+
+-   **Human-First**, porque los registros deben ser comprensibles y auditables por las personas responsables del sistema.\
+-   **Spec → Tests → Code**, porque cada especificación y cada prueba deben dejar rastros de ejecución que permitan demostrar su cumplimiento.\
+-   **Calidad continua**, porque los logs permiten analizar de manera objetiva el rendimiento, la cobertura de validación y la evolución del sistema a lo largo del tiempo.
+
+En HILL-SE, **cada ejecución, decisión o verificación debe poder observarse mediante evidencias estructuradas y auditables**.\
+Esta visibilidad convierte a los logs en un componente esencial de la transparencia metodológica: documentan no solo lo que hace el sistema, sino también cómo y por qué lo hace.
+
+La trazabilidad observable es, por tanto, el vínculo final entre la intención y la acción: un registro verificable que garantiza que la ingeniería asistida por inteligencia artificial siga siendo una práctica responsable, controlada y explicable.
+
+------------------------------------------------------------------------
+
+En resumen, el paradigma HILL-SE se construye sobre una idea central:\
 **la ingeniería de software sigue siendo una tarea humana**, pero puede y debe aprovechar los modelos de lenguaje como una herramienta poderosa dentro de un marco disciplinado, trazable y verificable.
-

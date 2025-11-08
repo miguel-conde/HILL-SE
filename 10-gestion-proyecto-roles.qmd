@@ -99,6 +99,35 @@ El Tech Lead aprueba qué prompts se incorporan al flujo oficial del proyecto.
 
 ---
 
+## Responsabilidades en materia de logging y observabilidad
+
+El sistema de logging estructurado forma parte integral de la gobernanza HILL-SE.  
+Su correcta aplicación garantiza la trazabilidad técnica, la transparencia y la capacidad de auditoría del proyecto.  
+Por tanto, las responsabilidades relacionadas con la observabilidad se asignan explícitamente a los principales roles del equipo.
+
+### Distribución de responsabilidades
+
+| Rol | Responsabilidades específicas sobre logging |
+|:----|:--------------------------------------------|
+| **Tech Lead** | Define la política de logging del proyecto, revisa su coherencia con los principios HILL-SE y aprueba su cumplimiento en las revisiones de release. Supervisa la protección de datos y la integración con los quality gates del pipeline. |
+| **Developer** | Implementa el logging en el código siguiendo el formato estructurado acordado (JSON). Asegura que los eventos generados sean relevantes, verificables y libres de información sensible o identificable. |
+| **QA Engineer** | Verifica la cobertura de logs durante la ejecución de tests y revisa su conformidad con las políticas de formato, privacidad y retención. Informa de desviaciones o ausencias de evidencias. |
+
+Estas funciones deben reflejarse en las *Definition of Ready* y *Definition of Done* de cada historia de usuario o tarea técnica.
+
+### Métricas de madurez y gobernanza
+
+La madurez en logging y observabilidad se evalúa dentro del marco de métricas HILL-SE.  
+A la tabla de seguimiento de gobernanza se añade la siguiente métrica cuantitativa:
+
+| Métrica | Descripción | Indicador |
+|:---------|:-------------|:-----------|
+| **Cobertura de logging estructurado** | Porcentaje de módulos o componentes del sistema que emiten logs estructurados y validados según la política del proyecto. | `≥ 90 %` en fase de release |
+
+Esta métrica complementa las de calidad de código, cobertura de pruebas y cumplimiento de estándares, fortaleciendo la trazabilidad observable como pilar operativo de la metodología.
+
+---
+
 ## Gobernanza y métricas de madurez
 
 El marco HILL-SE incluye un sistema de **métricas de madurez** que evalúa el grado de integración disciplinada entre humanos, LLMs y automatización.
